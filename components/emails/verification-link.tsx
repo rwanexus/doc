@@ -23,38 +23,43 @@ const VerificationLinkEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>Your Doc Login Link</Preview>
+      <Preview>您的 Doc 登入連結</Preview>
       <Tailwind>
         <Body className="mx-auto my-auto bg-white font-sans">
           <Container className="mx-auto my-10 max-w-[600px] rounded border border-solid border-neutral-200 px-10 py-5">
             <Section className="mt-8">
-              <Text className="text-2xl font-bold tracking-tighter">
+              <Text className="text-2xl font-bold tracking-tighter" style={{ color: "#1a3a6e" }}>
                 Doc
               </Text>
             </Section>
             <Heading className="mx-0 my-7 p-0 text-lg font-medium text-black">
-              Your Login Link
+              您的登入連結
             </Heading>
             <Text className="text-sm leading-6 text-black">
-              Welcome to Doc!
+              歡迎使用 Doc！
             </Text>
             <Text className="text-sm leading-6 text-black">
-              Please click the magic link below to sign in to your account.
+              請點擊下方按鈕登入您的帳號。
             </Text>
             <Section className="my-8">
               <Link
-                className="rounded-lg bg-black px-6 py-3 text-center text-[12px] font-semibold text-white no-underline"
+                className="rounded-lg px-6 py-3 text-center text-[12px] font-semibold text-white no-underline"
+                style={{ backgroundColor: "#1a3a6e" }}
                 href={url}
               >
-                Sign in
+                登入 Doc
               </Link>
             </Section>
             <Text className="text-sm leading-6 text-black">
-              or copy and paste this URL into your browser:
+              或複製以下連結到瀏覽器：
             </Text>
-            <Text className="max-w-sm flex-wrap break-words font-medium text-purple-600 no-underline">
-              {url.replace(/^https?:\/\//, "")}
-            </Text>
+            <Link
+              href={url}
+              className="max-w-sm flex-wrap break-words font-medium no-underline"
+              style={{ color: "#1a3a6e" }}
+            >
+              {url}
+            </Link>
             <Footer />
           </Container>
         </Body>
