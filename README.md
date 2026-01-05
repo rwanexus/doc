@@ -17,20 +17,24 @@ Doc 是一個自架的文件分享平台，提供安全的文件連結分享、�
 - **自訂品牌:** 支援自訂網域和品牌設定
 - **瀏覽分析:** 文件追蹤和頁面分析
 - **自架部署:** 完全掌控資料和自訂功能
+- **中文介面:** 登入和認證頁面完整中文化
 
 ## 技術架構
 
-- [Next.js](https://nextjs.org/) – 前端框架
-- [TypeScript](https://www.typescriptlang.org/) – 程式語言
-- [Tailwind](https://tailwindcss.com/) – CSS 框架
-- [shadcn/ui](https://ui.shadcn.com) - UI 元件
-- [Prisma](https://prisma.io) - ORM
-- [PostgreSQL](https://www.postgresql.org/) - 資料庫
-- [NextAuth.js](https://next-auth.js.org/) – 身份驗證
+| 技術 | 用途 |
+|------|------|
+| [Next.js](https://nextjs.org/) | 前端框架 |
+| [TypeScript](https://www.typescriptlang.org/) | 程式語言 |
+| [Tailwind CSS](https://tailwindcss.com/) | CSS 框架 |
+| [shadcn/ui](https://ui.shadcn.com) | UI 元件 |
+| [Prisma](https://prisma.io) | ORM |
+| [PostgreSQL](https://www.postgresql.org/) | 資料庫 |
+| [NextAuth.js](https://next-auth.js.org/) | 身份驗證 |
+| [Gmail SMTP](https://support.google.com/mail/answer/7126229) | 郵件發送 |
 
 ## 部署資訊
 
-### 伺服器
+### 伺服器配置
 
 | 項目 | 值 |
 |------|-----|
@@ -38,6 +42,7 @@ Doc 是一個自架的文件分享平台，提供安全的文件連結分享、�
 | Port | 6010 |
 | 網域 | doc.rwa.nexus |
 | 服務 | doc.service (systemd) |
+| 反向代理 | 192.168.1.114 (Apache) |
 
 ### 資料庫
 
@@ -46,15 +51,44 @@ Doc 是一個自架的文件分享平台，提供安全的文件連結分享、�
 | 類型 | PostgreSQL |
 | Host | localhost:5432 |
 | 資料庫名稱 | doc |
+| 使用者 | doc |
 
 ### 認證方式
 
-- Google OAuth
-- Email 登入
+- ✅ Google OAuth
+- ✅ Email Magic Link (Gmail SMTP)
 
 ### 郵件發送
 
-- Gmail SMTP (reyerchu@defintek.io)
+使用 Gmail SMTP 發送驗證郵件：
+- 帳號: reyerchu@defintek.io
+- 使用應用程式密碼認證
+
+## 自架優化
+
+本專案針對自架部署進行了以下優化：
+
+### 已移除的功能
+
+| 功能 | 原因 |
+|------|------|
+| Upstash Qstash | 改用直接發送 |
+| Upstash Redis | 自架不需要 Rate Limiting |
+| Resend | 改用 Gmail SMTP |
+| Slack Integration | 不需要 |
+| LinkedIn Login | 不需要 |
+| Passkey Login | 不需要 |
+| Pro/Business 升級廣告 | 自架不需要 |
+| Usage Progress | 自架不需要 |
+
+### 已新增/修改的功能
+
+| 功能 | 說明 |
+|------|------|
+| Gmail SMTP | 郵件發送改用 Nodemailer + Gmail |
+| 中文介面 | 登入/註冊/驗證頁面中文化 |
+| RWA Nexus 品牌 | 自訂 Logo 和配色 (#1a3a6e) |
+| 簡化登入頁面 | 移除右側 testimonials |
 
 ## 本地開發
 
@@ -62,6 +96,7 @@ Doc 是一個自架的文件分享平台，提供安全的文件連結分享、�
 
 - Node.js >= 22
 - PostgreSQL 資料庫
+- Gmail 帳號 (需開啟應用程式密碼)
 
 ### 安裝步驟
 
@@ -75,7 +110,14 @@ npm install
 
 # 3. 設定環境變數
 cp .env.example .env
-# 編輯 .env 設定資料庫和認證
+# 編輯 .env 設定:
+# - NEXTAUTH_URL
+# - NEXTAUTH_SECRET
+# - POSTGRES_PRISMA_URL
+# - GMAIL_USER
+# - GMAIL_APP_PASSWORD
+# - GOOGLE_CLIENT_ID (可選)
+# - GOOGLE_CLIENT_SECRET (可選)
 
 # 4. 初始化資料庫
 npx prisma db push
@@ -90,20 +132,43 @@ npm run dev
 # 建置
 npm run build
 
-# 啟動
+# 啟動 (指定 port)
 npm start -- -p 6010
 ```
 
-## 自架優化
+### Systemd 服務
 
-本專案針對自架部署進行了以下優化：
+```ini
+[Unit]
+Description=Doc Document Sharing Service
+After=network.target postgresql.service
 
-- ❌ 移除 Upstash/Qstash 依賴
-- ❌ 移除 Rate Limiting (自架不需要)
-- ❌ 移除升級提示和廣告
-- ✅ 支援 Gmail SMTP 發送郵件
-- ✅ 支援 Google OAuth 登入
-- ✅ 本地 PostgreSQL 資料庫
+[Service]
+Type=simple
+User=reyerchu
+WorkingDirectory=/home/reyerchu/doc
+Environment=NODE_ENV=production
+ExecStart=/home/reyerchu/.nvm/versions/node/v22.21.1/bin/npx next start -p 6010
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## 環境變數
+
+| 變數 | 說明 | 必要 |
+|------|------|------|
+| NEXTAUTH_URL | 網站 URL (https://doc.rwa.nexus) | ✅ |
+| NEXTAUTH_SECRET | NextAuth 加密金鑰 | ✅ |
+| POSTGRES_PRISMA_URL | PostgreSQL 連線字串 | ✅ |
+| GMAIL_USER | Gmail 帳號 | ✅ |
+| GMAIL_APP_PASSWORD | Gmail 應用程式密碼 | ✅ |
+| GOOGLE_CLIENT_ID | Google OAuth Client ID | 可選 |
+| GOOGLE_CLIENT_SECRET | Google OAuth Secret | 可選 |
+| NEXT_PUBLIC_UPLOAD_TRANSPORT | 上傳方式 (local) | ✅ |
+| UPLOAD_DIR | 上傳目錄路徑 | ✅ |
 
 ## 授權
 
@@ -112,3 +177,8 @@ npm start -- -p 6010
 ## 來源
 
 本專案 Fork 自 [mfts/papermark](https://github.com/mfts/papermark)，並進行自架部署優化。
+
+---
+
+**維護者:** RWA Nexus Team  
+**原始專案:** [Papermark](https://github.com/mfts/papermark)
