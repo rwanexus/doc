@@ -25,6 +25,7 @@ import Nav, { TNavData } from "../nav";
 import { PoweredBy } from "../powered-by";
 import Question from "../question";
 import Toolbar from "../toolbar";
+import PageThumbnailBar from "../page-thumbnail-bar";
 import ViewDurationSummary from "../visitor-graph";
 import { SVGWatermark } from "../watermark-svg";
 import { AwayPoster } from "./away-poster";
@@ -916,6 +917,18 @@ export default function PagesHorizontalViewer({
 
               {screenshotProtectionEnabled ? <ScreenProtector /> : null}
               {showPoweredByBanner ? <PoweredBy linkId={linkId} /> : null}
+              <PageThumbnailBar
+                pageNumber={pageNumber}
+                numPages={numPages}
+                pages={pages}
+                onPageClick={(page) => {
+                  setPageNumber(page);
+                  if (containerRef.current) {
+                    containerRef.current.scrollTo({ left: (page - 1) * window.innerWidth, behavior: "smooth" });
+                  }
+                }}
+                brand={brand}
+              />
               <AwayPoster
                 isVisible={isInactive}
                 inactivityThreshold={getTrackingOptions().inactivityThreshold}

@@ -24,6 +24,7 @@ import Nav, { TNavData } from "../nav";
 import { PoweredBy } from "../powered-by";
 import Question from "../question";
 import Toolbar from "../toolbar";
+import PageThumbnailBar from "../page-thumbnail-bar";
 import { SVGWatermark } from "../watermark-svg";
 import { AwayPoster } from "./away-poster";
 
@@ -1071,6 +1072,18 @@ export default function PagesVerticalViewer({
 
             {screenshotProtectionEnabled ? <ScreenProtector /> : null}
             {showPoweredByBanner ? <PoweredBy linkId={linkId} /> : null}
+            <PageThumbnailBar
+              pageNumber={pageNumber}
+              numPages={numPages}
+              pages={pages}
+              onPageClick={(page) => {
+                const targetImg = imageRefs.current[page - 1];
+                if (targetImg) {
+                  targetImg.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              }}
+              brand={brand}
+            />
             <AwayPoster
               isVisible={isInactive}
               inactivityThreshold={

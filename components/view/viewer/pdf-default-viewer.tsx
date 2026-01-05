@@ -10,6 +10,7 @@ import { getTrackingOptions } from "@/lib/tracking/tracking-config";
 import Nav from "@/components/view/nav";
 
 import { AwayPoster } from "./away-poster";
+import PageThumbnailBar from "../page-thumbnail-bar";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -309,7 +310,12 @@ export default function PDFViewer(props: any) {
             />
           </Document>
         </div>
-        <AwayPoster
+        <PageThumbnailBar
+                pageNumber={pageNumber}
+                numPages={numPages}
+                onPageClick={(page) => setPageNumber(page)}
+              />
+              <AwayPoster
           isVisible={isInactive}
           inactivityThreshold={getTrackingOptions().inactivityThreshold}
           onDismiss={updateActivity}
