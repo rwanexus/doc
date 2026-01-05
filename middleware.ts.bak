@@ -26,7 +26,6 @@ function isCustomDomain(host: string) {
     (process.env.NODE_ENV !== "development" &&
       !(
         host?.includes("localhost") ||
-        host?.includes("doc.rwa.nexus") ||
         host?.includes("papermark.io") ||
         host?.includes("papermark.com") ||
         host?.endsWith(".vercel.app")

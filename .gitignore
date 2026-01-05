@@ -61,4 +61,5 @@ lib/emails/marketing
 .trigger
 
 # changelog
-changelog
+changelogee.disabled/
+app/(ee).disabled/
