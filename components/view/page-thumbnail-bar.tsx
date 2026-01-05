@@ -132,7 +132,7 @@ export default function PageThumbnailBar({
                     backgroundColor: isCurrentPage
                       ? accentColor // 深綠色 - 當前頁面
                       : isHovered
-                        ? "#10b981" // 淺綠色 - 懸停
+                        ? "#0a5555" // 淺綠色 - 懸停
                         : "rgba(255,255,255,0.3)",
                   }}
                 />
