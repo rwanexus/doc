@@ -707,7 +707,7 @@ export default function PagesHorizontalViewer({
                                 src={
                                   loadedImages[index]
                                     ? page.file
-                                    : "https://www.papermark.com/_static/blank.gif"
+                                    : "https://doc.rwa.nexus/_static/blank.gif"
                                 }
                                 alt={`Page ${index + 1}`}
                               />

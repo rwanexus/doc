@@ -40,7 +40,7 @@ import { fileIcon } from "@/lib/utils/get-file-icon";
 
 import FileUp from "@/components/shared/icons/file-up";
 import MoreVertical from "@/components/shared/icons/more-vertical";
-import PapermarkSparkle from "@/components/shared/icons/papermark-sparkle";
+import DocSparkle from "@/components/shared/icons/papermark-sparkle";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -630,7 +630,7 @@ export default function DocumentHeader({
                   className="hidden size-8 md:flex lg:size-9"
                   onClick={() => setAiDialogOpen(true)}
                 >
-                  <PapermarkSparkle className="h-5 w-5 text-emerald-500" />
+                  <DocSparkle className="h-5 w-5 text-emerald-500" />
                 </Button>
               </ButtonTooltip>
             ) : (
@@ -645,7 +645,7 @@ export default function DocumentHeader({
                   {enablingAI ? (
                     <LoadingSpinner className="h-5 w-5" />
                   ) : (
-                    <PapermarkSparkle className="h-5 w-5" />
+                    <DocSparkle className="h-5 w-5" />
                   )}
                 </Button>
               </ButtonTooltip>
@@ -741,7 +741,7 @@ export default function DocumentHeader({
                       setMenuOpen(false);
                     }}
                   >
-                    <PapermarkSparkle className="mr-2 h-4 w-4 text-emerald-500" />
+                    <DocSparkle className="mr-2 h-4 w-4 text-emerald-500" />
                     AI Agents Settings
                   </DropdownMenuItem>
                 ) : (
@@ -752,7 +752,7 @@ export default function DocumentHeader({
                     }}
                     disabled={enablingAI}
                   >
-                    <PapermarkSparkle className="mr-2 h-4 w-4" />
+                    <DocSparkle className="mr-2 h-4 w-4" />
                     {enablingAI ? "Enabling AI..." : "Enable AI Agents"}
                   </DropdownMenuItem>
                 ))}

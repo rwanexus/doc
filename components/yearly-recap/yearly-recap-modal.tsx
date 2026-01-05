@@ -339,9 +339,9 @@ export function YearlyRecapModal({
 · ${stats?.totalViews?.toLocaleString()} views
 · ${countriesCount} countries
 
-My Papermark Wrapped ${stats?.year}!
+My Doc Wrapped ${stats?.year}!
 
-#PapermarkWrapped https://www.papermark.com/`;
+#DocWrapped https://doc.rwa.nexus/`;
   };
 
   const handleShareLinkedIn = async () => {
@@ -351,7 +351,7 @@ My Papermark Wrapped ${stats?.year}!
     });
     const text = getShareText();
     window.open(
-      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://www.papermark.com/")}&summary=${encodeURIComponent(text)}`,
+      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://doc.rwa.nexus/")}&summary=${encodeURIComponent(text)}`,
       "_blank",
     );
   };
@@ -458,7 +458,7 @@ My Papermark Wrapped ${stats?.year}!
                   <div className="mt-4 text-center sm:mt-6">
                     <div className="inline-flex items-center gap-2">
                       <span className="text-base font-bold text-gray-900 sm:text-lg">
-                        Papermark
+                        Doc
                       </span>
                       <span className="text-base font-black text-gray-900 sm:text-lg">
                         WRAPPED
@@ -628,7 +628,7 @@ function IntroSlide({
     <div className="relative flex min-h-[350px] flex-col items-center justify-center text-center sm:min-h-[520px]">
       <h1 className="relative z-10 mb-4 text-balance text-3xl font-semibold text-foreground sm:text-6xl">
         Your {stats.year} with{" "}
-        <span className="text-orange-500">Papermark</span>
+        <span className="text-orange-500">Doc</span>
       </h1>
       <p className="relative z-10 mb-10 max-w-xl px-2 text-xs text-gray-500 sm:mb-14 sm:px-0 sm:text-sm">
         This review is personalised to your platform usage and contains your
@@ -736,7 +736,7 @@ function ViewsStatsSlide({ stats }: { stats: YearlyRecapStats }) {
     <div className="flex min-h-[350px] flex-col items-center justify-center sm:min-h-[520px]">
       {/* Header from left */}
       <h2 className="mb-6 text-balance text-center text-xl font-bold text-foreground duration-700 animate-in slide-in-from-left-8 sm:mb-8 sm:text-3xl">
-        Your {stats.year} activity on Papermark
+        Your {stats.year} activity on Doc
       </h2>
 
       {/* Cards from right */}
@@ -854,7 +854,7 @@ function ShareOfferSlide({ stats }: { stats: YearlyRecapStats }) {
   return (
     <div className="flex min-h-[350px] flex-col items-center justify-center text-center sm:min-h-[520px]">
       <h2 className="mb-4 text-balance text-xl font-bold text-foreground sm:mb-6 sm:text-3xl">
-        Share your stats or experience with Papermark
+        Share your stats or experience with Doc
       </h2>
 
       <div className="duration-1000 animate-in zoom-in-50">

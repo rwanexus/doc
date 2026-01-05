@@ -24,7 +24,7 @@ const Onboarding4Email = () => {
         <Body className="mx-auto my-auto bg-white font-sans">
           <Container className="mx-auto my-10 w-[465px] p-5">
             <Text className="mx-0 mb-8 mt-4 p-0 text-center text-2xl font-normal">
-              <span className="font-bold tracking-tighter">Papermark</span>
+              <span className="font-bold tracking-tighter">Doc</span>
             </Text>
             <Text className="mx-0 mb-8 mt-4 p-0 text-center text-2xl font-normal">
               Custom domains and branding
@@ -32,13 +32,13 @@ const Onboarding4Email = () => {
             <Text className="text-sm">
               Look professional with custom branding!
             </Text>
-            <Text className="text-sm">With Papermark you can:</Text>
+            <Text className="text-sm">With Doc you can:</Text>
             <ul className="list-inside list-disc text-sm">
               <li>
                 Share documnets with your <strong>custom domain💫</strong>{" "}
               </li>
 
-              <li>Remove &quot;powered by Papermark&quot;</li>
+              <li>Remove &quot;powered by Doc&quot;</li>
               <li>Add logo and custom colors</li>
               <li>Share data room with custom domain</li>
               <li>Add banner and custom brand to data rooms</li>
@@ -72,7 +72,7 @@ const Onboarding4Email = () => {
               <Text className="text-xs">
                 © {new Date().getFullYear()}{" "}
                 <a
-                  href="https://www.papermark.com"
+                  href="https://doc.rwa.nexus"
                   className="text-gray-400 no-underline"
                   target="_blank"
                 >

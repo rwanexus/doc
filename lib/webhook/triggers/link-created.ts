@@ -78,7 +78,7 @@ export async function sendLinkCreatedWebhook({
       id: link.id,
       url: link.domainId
         ? `https://${link.domainSlug}/${link.slug}`
-        : `https://www.papermark.com/view/${link.id}`,
+        : `https://doc.rwa.nexus/view/${link.id}`,
       domain:
         link.domainId && link.domainSlug ? link.domainSlug : "papermark.com",
       key: link.domainId && link.slug ? link.slug : `view/${link.id}`,

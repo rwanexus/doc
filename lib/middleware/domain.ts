@@ -33,7 +33,7 @@ export default async function DomainMiddleware(req: NextRequest) {
     }
 
     return NextResponse.redirect(
-      new URL("https://www.papermark.com/home", req.url),
+      new URL("https://doc.rwa.nexus/home", req.url),
     );
   }
 
@@ -53,7 +53,7 @@ export default async function DomainMiddleware(req: NextRequest) {
     headers: {
       "X-Robots-Tag": "noindex",
       "X-Powered-By":
-        "Papermark - Secure Data Room Infrastructure for the modern web",
+        "Doc - Secure Data Room Infrastructure for the modern web",
     },
   });
 }

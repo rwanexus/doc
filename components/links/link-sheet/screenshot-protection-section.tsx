@@ -41,7 +41,7 @@ export default function ScreenshotProtectionSection({
       <LinkItem
         title="Enable screenshot protection"
         tooltipContent="Prevent users from taking screenshots of your content."
-        link="https://www.papermark.com/screenshot-protection"
+        link="https://doc.rwa.nexus/screenshot-protection"
         enabled={enabled}
         action={handleEnableScreenshotProtection}
         isAllowed={isAllowed}

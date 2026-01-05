@@ -14,10 +14,10 @@ export const STAGGER_CHILD_VARIANTS = {
   },
 };
 
-export const PAPERMARK_HEADERS = {
+export const DOC_HEADERS = {
   headers: {
     "x-powered-by":
-      "Papermark - Secure Data Room Infrastructure for the modern web",
+      "Doc - Secure Document Sharing for the modern web",
   },
 };
 

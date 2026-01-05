@@ -22,7 +22,7 @@ const Onboarding3Email = () => {
         <Body className="mx-auto my-auto bg-white font-sans">
           <Container className="mx-auto my-10 w-[465px] p-5">
             <Text className="mx-0 mb-8 mt-4 p-0 text-center text-2xl font-normal">
-              <span className="font-bold tracking-tighter">Papermark</span>
+              <span className="font-bold tracking-tighter">Doc</span>
             </Text>
             <Text className="mx-0 mb-8 mt-4 p-0 text-center text-2xl font-normal">
               Watch the views come in real-time
@@ -31,7 +31,7 @@ const Onboarding3Email = () => {
               You need to know who viewed your documents!
             </Text>
             <Text className="text-sm">
-              With Papermark you can track progress on each page of your
+              With Doc you can track progress on each page of your
               document and other analytics:
             </Text>
             <ul className="list-inside list-disc text-sm">
@@ -59,7 +59,7 @@ const Onboarding3Email = () => {
             <Hr />
             <Section className="mt-8 text-gray-400">
               <Text className="text-xs">
-                © {new Date().getFullYear()} Papermark, Inc. All rights
+                © {new Date().getFullYear()} Doc, Inc. All rights
                 reserved.
               </Text>
               <Text className="text-xs">

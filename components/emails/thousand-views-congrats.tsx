@@ -20,12 +20,12 @@ const ThousandViewsCongratsEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>1000 views on Papermark.</Preview>
+      <Preview>1000 views on Doc.</Preview>
       <Tailwind>
         <Body className="font-sans text-sm">
           <Text>Hi{name && ` ${name}`},</Text>
           <Text>
-            I&apos;m Marc, founder of Papermark. Congrats on 1000 views on your
+            I&apos;m Marc, founder of Doc. Congrats on 1000 views on your
             documents.
           </Text>
           <Text>How is your experience so far?</Text>

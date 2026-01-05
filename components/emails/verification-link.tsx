@@ -16,27 +16,27 @@ import {
 import { Footer } from "./shared/footer";
 
 const VerificationLinkEmail = ({
-  url = "https://www.papermark.com",
+  url = "https://doc.rwa.nexus",
 }: {
   url: string;
 }) => {
   return (
     <Html>
       <Head />
-      <Preview>Your Papermark Login Link</Preview>
+      <Preview>Your Doc Login Link</Preview>
       <Tailwind>
         <Body className="mx-auto my-auto bg-white font-sans">
           <Container className="mx-auto my-10 max-w-[600px] rounded border border-solid border-neutral-200 px-10 py-5">
             <Section className="mt-8">
               <Text className="text-2xl font-bold tracking-tighter">
-                Papermark
+                Doc
               </Text>
             </Section>
             <Heading className="mx-0 my-7 p-0 text-lg font-medium text-black">
               Your Login Link
             </Heading>
             <Text className="text-sm leading-6 text-black">
-              Welcome to Papermark!
+              Welcome to Doc!
             </Text>
             <Text className="text-sm leading-6 text-black">
               Please click the magic link below to sign in to your account.

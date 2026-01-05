@@ -3,20 +3,20 @@ import { Metadata } from "next";
 import RegisterClient from "./page-client";
 
 const data = {
-  description: "Signup to Papermark",
-  title: "Sign up | Papermark",
+  description: "Signup to Doc",
+  title: "Sign up | Doc",
   url: "/register",
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.papermark.com"),
+  metadataBase: new URL("https://doc.rwa.nexus"),
   title: data.title,
   description: data.description,
   openGraph: {
     title: data.title,
     description: data.description,
     url: data.url,
-    siteName: "Papermark",
+    siteName: "Doc",
     images: [
       {
         url: "/_static/meta-image.png",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: data.title,
     description: data.description,
-    creator: "@papermarkio",
+    creator: "@doc_rwa_nexus",
     images: ["/_static/meta-image.png"],
   },
 };

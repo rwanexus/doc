@@ -9,20 +9,20 @@ import { LogoCloud } from "@/components/shared/logo-cloud";
 import { Button } from "@/components/ui/button";
 
 const data = {
-  description: "Verify login to Papermark",
-  title: "Verify | Papermark",
+  description: "Verify login to Doc",
+  title: "Verify | Doc",
   url: "/verify",
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.papermark.com"),
+  metadataBase: new URL("https://doc.rwa.nexus"),
   title: data.title,
   description: data.description,
   openGraph: {
     title: data.title,
     description: data.description,
     url: data.url,
-    siteName: "Papermark",
+    siteName: "Doc",
     images: [
       {
         url: "/_static/meta-image.png",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: data.title,
     description: data.description,
-    creator: "@papermarkio",
+    creator: "@doc_rwa_nexus",
     images: ["/_static/meta-image.png"],
   },
 };
@@ -81,7 +81,7 @@ export default function VerifyPage({
           <div className="items-left flex flex-col space-y-3 px-4 py-6 pt-8 sm:px-12">
             <img
               src="/_static/papermark-logo.svg"
-              alt="Papermark Logo"
+              alt="Doc Logo"
               className="-mt-8 mb-36 h-7 w-auto self-start sm:mb-32 md:mb-48"
             />
             <Link href="/">
@@ -104,7 +104,7 @@ export default function VerifyPage({
           </div>
           <p className="mt-10 w-full max-w-md px-4 text-xs text-muted-foreground sm:px-12">
             By clicking continue, you acknowledge that you have read and agree
-            to Papermark&apos;s{" "}
+            to Doc&apos;s{" "}
             <a
               href={`${process.env.NEXT_PUBLIC_MARKETING_URL}/terms`}
               target="_blank"
@@ -147,7 +147,7 @@ export default function VerifyPage({
               <div className="max-w-xl text-center">
                 <blockquote className="text-balance font-normal leading-8 text-white sm:text-xl sm:leading-9">
                   <p>
-                    &quot;We raised our €30M Fund with Papermark Data Rooms.
+                    &quot;We raised our €30M Fund with Doc Data Rooms.
                     Love the customization, security and ease of use.&quot;
                   </p>
                 </blockquote>

@@ -29,7 +29,7 @@ const DataroomTrialEnd = ({ name }: DataroomTrialEnd) => {
         <Body className="mx-auto my-auto bg-white font-sans">
           <Container className="mx-auto my-10 w-[465px] p-5">
             <Text className="mb-8 mt-4 text-center text-2xl font-normal">
-              <span className="font-bold tracking-tighter">Papermark</span>
+              <span className="font-bold tracking-tighter">Doc</span>
             </Text>
             <Text className="font-seminbold mb-8 mt-4 text-center text-xl">
               Your Data Room plan trial has expired
@@ -38,7 +38,7 @@ const DataroomTrialEnd = ({ name }: DataroomTrialEnd) => {
               Hey{name && ` ${name}`}!
             </Text>
             <Text className="text-sm leading-6 text-black">
-              Your Papermark Data Room trial has expired.
+              Your Doc Data Room trial has expired.
               <br />
               <Link
                 href={`https://app.papermark.com/settings/billing`}

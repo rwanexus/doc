@@ -31,7 +31,7 @@ export default function ViewPage() {
                   />
                 ) : (
                   <div className="text-2xl font-bold tracking-tighter text-white">
-                    Papermark
+                    Doc
                   </div>
                 )}
               </div>
