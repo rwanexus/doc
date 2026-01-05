@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import { DocumentStorageType } from "@prisma/client";
 import { newId } from "@/lib/id-helper";
+import slugify from "@sindresorhus/slugify";
 
 export const config = {
   api: {
@@ -34,24 +35,29 @@ export default async function handler(
     }
 
     const uploadDir = process.env.UPLOAD_DIR || "/home/reyerchu/doc/uploads";
-    const teamDir = path.join(uploadDir, teamId);
+    
+    // 生成符合驗證格式的路徑: teamId/doc_xxx/filename.ext
+    const docId = newId("doc");
+    const docDir = path.join(uploadDir, teamId, docId);
     
     // 確保目錄存在
-    await fs.mkdir(teamDir, { recursive: true });
+    await fs.mkdir(docDir, { recursive: true });
     
-    // 生成唯一的檔案名稱
-    const docId = newId("doc");
+    // 生成檔案名稱
     const ext = path.extname(file.originalFilename || ".pdf");
-    const fileName = `${docId}${ext}`;
-    const filePath = path.join(teamDir, fileName);
+    const baseName = slugify(path.basename(file.originalFilename || "file", ext)) || "file";
+    const fileName = `${baseName}${ext}`;
+    const filePath = path.join(docDir, fileName);
     
     // 移動檔案
     const fileBuffer = await fs.readFile(file.filepath);
     await fs.writeFile(filePath, fileBuffer);
     await fs.unlink(file.filepath); // 刪除臨時檔案
     
-    // 返回相對路徑
-    const relativePath = `${teamId}/${fileName}`;
+    // 返回符合驗證格式的相對路徑: teamId/doc_xxx/filename.ext
+    const relativePath = `${teamId}/${docId}/${fileName}`;
+    
+    console.log("Local upload success:", relativePath);
     
     res.status(200).json({
       type: DocumentStorageType.S3_PATH,
