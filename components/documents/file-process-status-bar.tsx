@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 
 import { Progress } from "@/components/ui/progress";
@@ -14,6 +15,16 @@ const QUEUED_MESSAGES = [
   "Almost ready...",
 ];
 
+type LocalProgressResponse = {
+  localMode?: boolean;
+  status?: "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+  progress?: number;
+  message?: string | null;
+  error?: string | null;
+  publicAccessToken?: string | null;
+  selfHosted?: boolean;
+};
+
 export default function FileProcessStatusBar({
   documentVersionId,
   className,
@@ -26,103 +37,150 @@ export default function FileProcessStatusBar({
   onProcessingChange?: (processing: boolean) => void;
 }) {
   const [messageIndex, setMessageIndex] = useState(0);
-  const { data } = useSWRImmutable<{ publicAccessToken: string | null; selfHosted?: boolean }>(
+  
+  // Fetch initial status
+  const { data: initialData, mutate: mutateProgress } = useSWR<LocalProgressResponse>(
     `/api/progress-token?documentVersionId=${documentVersionId}`,
     fetcher,
+    {
+      refreshInterval: (data) => {
+        // Poll every 2 seconds if in local mode and not completed
+        if (data?.localMode && data?.status !== "COMPLETED" && data?.status !== "FAILED") {
+          return 2000;
+        }
+        return 0; // Stop polling
+      },
+    }
   );
 
-  const { status: progressStatus, error: progressError } =
-    useDocumentProgressStatus(documentVersionId, data?.publicAccessToken ?? undefined);
+  // For Trigger.dev mode (if publicAccessToken is available)
+  const { status: triggerStatus, error: triggerError } =
+    useDocumentProgressStatus(documentVersionId, initialData?.publicAccessToken ?? undefined);
 
-  // Self-hosted mode: skip progress tracking, assume completed immediately
+  // Handle local mode status updates
   useEffect(() => {
-    if (data?.selfHosted || (data?.publicAccessToken === null)) {
-      // In self-hosted mode without Trigger.dev, assume document is ready
-      onProcessingChange?.(false);
-      // Trigger a refresh to get the actual document status
-      const timer = setTimeout(() => {
+    if (initialData?.localMode) {
+      const isProcessing = initialData.status === "QUEUED" || initialData.status === "PROCESSING";
+      onProcessingChange?.(isProcessing);
+      
+      if (initialData.status === "COMPLETED") {
         mutateDocument();
-      }, 1000);
-      return () => clearTimeout(timer);
+      }
     }
-  }, [data?.selfHosted, data?.publicAccessToken, mutateDocument, onProcessingChange]);
+  }, [initialData?.localMode, initialData?.status, mutateDocument, onProcessingChange]);
 
-  // Update processing state whenever status changes
+  // Handle Trigger.dev mode status updates
   useEffect(() => {
-    if (onProcessingChange) {
-      onProcessingChange(
-        progressStatus.state === "QUEUED" ||
-          progressStatus.state === "EXECUTING",
+    if (!initialData?.localMode && initialData?.publicAccessToken) {
+      onProcessingChange?.(
+        triggerStatus.state === "QUEUED" || triggerStatus.state === "EXECUTING"
       );
     }
-  }, [progressStatus.state, onProcessingChange]);
+  }, [initialData?.localMode, initialData?.publicAccessToken, triggerStatus.state, onProcessingChange]);
 
-  // Cycle through messages when queued or executing
+  // Cycle through messages when queued
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    const isQueued = initialData?.localMode 
+      ? initialData?.status === "QUEUED"
+      : triggerStatus.state === "QUEUED";
 
-    if (progressStatus.state === "QUEUED") {
+    if (isQueued) {
       interval = setInterval(() => {
         setMessageIndex((current) => (current + 1) % QUEUED_MESSAGES.length);
-      }, 5000); // Change message every 5 seconds
+      }, 5000);
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [progressStatus.state]);
+  }, [initialData?.localMode, initialData?.status, triggerStatus.state]);
 
-  // Self-hosted mode: don't show progress bar, assume ready
-  if (data?.selfHosted || (data && data.publicAccessToken === null)) {
+  // Local mode rendering
+  if (initialData?.localMode) {
+    const { status, progress, message, error } = initialData;
+
+    if (status === "COMPLETED") {
+      return null;
+    }
+
+    if (status === "FAILED" || error) {
+      return (
+        <Progress
+          value={0}
+          text={error || message || "Error processing document"}
+          error={true}
+          className={cn("w-full rounded-none text-[8px] font-semibold", className)}
+        />
+      );
+    }
+
+    if (status === "QUEUED") {
+      return (
+        <Progress
+          value={0}
+          text={QUEUED_MESSAGES[messageIndex]}
+          className={cn("w-full rounded-none text-[8px] font-semibold", className)}
+        />
+      );
+    }
+
+    if (status === "PROCESSING") {
+      return (
+        <Progress
+          value={progress || 0}
+          text={message || "Processing document..."}
+          className={cn("w-full rounded-none text-[8px] font-semibold", className)}
+        />
+      );
+    }
+
+    // Default: assume completed if no status
+    mutateDocument();
     return null;
   }
 
-  if (progressStatus.state === "QUEUED" && !progressError) {
+  // Trigger.dev mode (legacy) - self-hosted fallback
+  if (initialData?.selfHosted || (initialData && initialData.publicAccessToken === null)) {
+    onProcessingChange?.(false);
+    setTimeout(() => mutateDocument(), 1000);
+    return null;
+  }
+
+  // Trigger.dev mode rendering
+  if (triggerStatus.state === "QUEUED" && !triggerError) {
     return (
       <Progress
         value={0}
         text={QUEUED_MESSAGES[messageIndex]}
-        className={cn(
-          "w-full rounded-none text-[8px] font-semibold",
-          className,
-        )}
+        className={cn("w-full rounded-none text-[8px] font-semibold", className)}
       />
     );
   }
 
   if (
-    progressError ||
-    ["FAILED", "CRASHED", "CANCELED", "SYSTEM_FAILURE"].includes(
-      progressStatus.state,
-    )
+    triggerError ||
+    ["FAILED", "CRASHED", "CANCELED", "SYSTEM_FAILURE"].includes(triggerStatus.state)
   ) {
     return (
       <Progress
         value={0}
-        text={
-          progressError?.message ||
-          progressStatus.text ||
-          "Error processing document"
-        }
+        text={triggerError?.message || triggerStatus.text || "Error processing document"}
         error={true}
-        className={cn(
-          "w-full rounded-none text-[8px] font-semibold",
-          className,
-        )}
+        className={cn("w-full rounded-none text-[8px] font-semibold", className)}
       />
     );
   }
 
-  if (progressStatus.state === "COMPLETED") {
+  if (triggerStatus.state === "COMPLETED") {
     mutateDocument();
     return null;
   }
 
-  // For EXECUTING state
   return (
     <Progress
-      value={progressStatus.progress || 0}
-      text={progressStatus.text || "Processing document..."}
+      value={triggerStatus.progress || 0}
+      text={triggerStatus.text || "Processing document..."}
       className={cn("w-full rounded-none text-[8px] font-semibold", className)}
     />
   );

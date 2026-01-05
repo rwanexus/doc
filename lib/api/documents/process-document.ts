@@ -6,17 +6,42 @@ import { copyFileToBucketServer } from "@/lib/files/copy-file-to-bucket-server";
 import notion from "@/lib/notion";
 import { getNotionPageIdFromSlug } from "@/lib/notion/utils";
 import prisma from "@/lib/prisma";
-import {
-  convertCadToPdfTask,
-  convertFilesToPdfTask,
-  convertKeynoteToPdfTask,
-} from "@/lib/trigger/convert-files";
-import { processVideo } from "@/lib/trigger/optimize-video-files";
-import { convertPdfToImageRoute } from "@/lib/trigger/pdf-to-image-route";
 import { getExtension, log } from "@/lib/utils";
-import { conversionQueue } from "@/lib/utils/trigger-utils";
 import { sendDocumentCreatedWebhook } from "@/lib/webhook/triggers/document-created";
 import { sendLinkCreatedWebhook } from "@/lib/webhook/triggers/link-created";
+
+// Check if Trigger.dev is configured
+const TRIGGER_ENABLED = !!process.env.TRIGGER_SECRET_KEY;
+
+// Dynamically import Trigger.dev tasks only if enabled
+let convertFilesToPdfTask: any;
+let convertPdfToImageRoute: any;
+let processVideo: any;
+let convertKeynoteToPdfTask: any;
+let convertCadToPdfTask: any;
+let conversionQueue: any;
+
+if (TRIGGER_ENABLED) {
+  // Import Trigger.dev tasks
+  Promise.all([
+    import("@/lib/trigger/convert-files").then(m => {
+      convertFilesToPdfTask = m.convertFilesToPdfTask;
+      convertKeynoteToPdfTask = m.convertKeynoteToPdfTask;
+      convertCadToPdfTask = m.convertCadToPdfTask;
+    }),
+    import("@/lib/trigger/pdf-to-image-route").then(m => {
+      convertPdfToImageRoute = m.convertPdfToImageRoute;
+    }),
+    import("@/lib/trigger/optimize-video-files").then(m => {
+      processVideo = m.processVideo;
+    }),
+    import("@/lib/utils/trigger-utils").then(m => {
+      conversionQueue = m.conversionQueue;
+    }),
+  ]).catch(err => {
+    console.warn("Failed to load Trigger.dev tasks:", err);
+  });
+}
 
 type ProcessDocumentParams = {
   documentData: DocumentData;
@@ -163,136 +188,167 @@ export const processDocument = async ({
     },
   });
 
-  // Trigger appropriate conversion tasks based on document type
-  // Check if it's a Keynote file (slides type with Keynote content type)
-  if (
-    type === "slides" &&
-    (contentType === "application/vnd.apple.keynote" ||
-      contentType === "application/x-iwork-keynote-sffkey")
-  ) {
-    await convertKeynoteToPdfTask.trigger(
-      {
-        documentId: document.id,
+  // If Trigger.dev is not enabled (self-hosted mode), mark as completed immediately
+  if (!TRIGGER_ENABLED) {
+    // Create processing status as COMPLETED for self-hosted
+    await prisma.documentProcessingStatus.upsert({
+      where: { documentVersionId: document.versions[0].id },
+      update: {
+        status: "COMPLETED",
+        progress: 100,
+        message: "Document ready",
+      },
+      create: {
         documentVersionId: document.versions[0].id,
-        teamId,
+        status: "COMPLETED",
+        progress: 100,
+        message: "Document ready",
       },
-      {
-        idempotencyKey: `${teamId}-${document.versions[0].id}-keynote`,
-        tags: [
-          `team_${teamId}`,
-          `document_${document.id}`,
-          `version:${document.versions[0].id}`,
-        ],
-        queue: conversionQueue(teamPlan),
-        concurrencyKey: teamId,
-      },
-    );
-  } else if (type === "docs" || type === "slides") {
-    await convertFilesToPdfTask.trigger(
-      {
-        documentId: document.id,
+    });
+  } else {
+    // Trigger.dev is enabled - use background processing
+    
+    // Create initial processing status
+    await prisma.documentProcessingStatus.create({
+      data: {
         documentVersionId: document.versions[0].id,
-        teamId,
+        status: "QUEUED",
+        progress: 0,
+        message: "Waiting to process...",
       },
-      {
-        idempotencyKey: `${teamId}-${document.versions[0].id}-docs`,
-        tags: [
-          `team_${teamId}`,
-          `document_${document.id}`,
-          `version:${document.versions[0].id}`,
-        ],
-        queue: conversionQueue(teamPlan),
-        concurrencyKey: teamId,
-      },
-    );
-  }
-
-  if (type === "cad") {
-    await convertCadToPdfTask.trigger(
-      {
-        documentId: document.id,
-        documentVersionId: document.versions[0].id,
-        teamId,
-      },
-      {
-        idempotencyKey: `${teamId}-${document.versions[0].id}-cad`,
-        tags: [
-          `team_${teamId}`,
-          `document_${document.id}`,
-          `version:${document.versions[0].id}`,
-        ],
-        queue: conversionQueue(teamPlan),
-        concurrencyKey: teamId,
-      },
-    );
-  }
-
-  if (
-    type === "video" &&
-    contentType !== "video/mp4" &&
-    contentType?.startsWith("video/")
-  ) {
-    await processVideo.trigger(
-      {
-        videoUrl: key,
-        teamId,
-        docId: key.split("/")[1], // Extract doc_xxxx from teamId/doc_xxxx/filename
-        documentVersionId: document.versions[0].id,
-        fileSize: fileSize || 0,
-      },
-      {
-        idempotencyKey: `${teamId}-${document.versions[0].id}`,
-        tags: [
-          `team_${teamId}`,
-          `document_${document.id}`,
-          `version:${document.versions[0].id}`,
-        ],
-        queue: conversionQueue(teamPlan),
-        concurrencyKey: teamId,
-      },
-    );
-  }
-
-  // skip triggering convert-pdf-to-image job for "notion" / "excel" documents
-  if (type === "pdf") {
-    await convertPdfToImageRoute.trigger(
-      {
-        documentId: document.id,
-        documentVersionId: document.versions[0].id,
-        teamId,
-      },
-      {
-        idempotencyKey: `${teamId}-${document.versions[0].id}`,
-        tags: [
-          `team_${teamId}`,
-          `document_${document.id}`,
-          `version:${document.versions[0].id}`,
-        ],
-        queue: conversionQueue(teamPlan),
-        concurrencyKey: teamId,
-      },
-    );
-  }
-
-  if (type === "sheet" && enableExcelAdvancedMode) {
-    await copyFileToBucketServer({
-      filePath: document.versions[0].file,
-      storageType: document.versions[0].storageType,
-      teamId,
     });
 
-    await prisma.documentVersion.update({
-      where: { id: document.versions[0].id },
-      data: { numPages: 1 },
-    });
-
-    try {
-      await fetch(
-        `${process.env.NEXTAUTH_URL}/api/revalidate?secret=${process.env.REVALIDATE_TOKEN}&documentId=${document.id}`,
+    // Check if it's a Keynote file
+    if (
+      type === "slides" &&
+      (contentType === "application/vnd.apple.keynote" ||
+        contentType === "application/x-iwork-keynote-sffkey") &&
+      convertKeynoteToPdfTask
+    ) {
+      await convertKeynoteToPdfTask.trigger(
+        {
+          documentId: document.id,
+          documentVersionId: document.versions[0].id,
+          teamId,
+        },
+        {
+          idempotencyKey: `${teamId}-${document.versions[0].id}-keynote`,
+          tags: [
+            `team_${teamId}`,
+            `document_${document.id}`,
+            `version:${document.versions[0].id}`,
+          ],
+          queue: conversionQueue?.(teamPlan),
+          concurrencyKey: teamId,
+        },
       );
-    } catch (error) {
-      console.error("Failed to revalidate document:", error);
-      // The document is still updated, so we can continue without throwing
+    } else if ((type === "docs" || type === "slides") && convertFilesToPdfTask) {
+      await convertFilesToPdfTask.trigger(
+        {
+          documentId: document.id,
+          documentVersionId: document.versions[0].id,
+          teamId,
+        },
+        {
+          idempotencyKey: `${teamId}-${document.versions[0].id}-docs`,
+          tags: [
+            `team_${teamId}`,
+            `document_${document.id}`,
+            `version:${document.versions[0].id}`,
+          ],
+          queue: conversionQueue?.(teamPlan),
+          concurrencyKey: teamId,
+        },
+      );
+    }
+
+    if (type === "cad" && convertCadToPdfTask) {
+      await convertCadToPdfTask.trigger(
+        {
+          documentId: document.id,
+          documentVersionId: document.versions[0].id,
+          teamId,
+        },
+        {
+          idempotencyKey: `${teamId}-${document.versions[0].id}-cad`,
+          tags: [
+            `team_${teamId}`,
+            `document_${document.id}`,
+            `version:${document.versions[0].id}`,
+          ],
+          queue: conversionQueue?.(teamPlan),
+          concurrencyKey: teamId,
+        },
+      );
+    }
+
+    if (
+      type === "video" &&
+      contentType !== "video/mp4" &&
+      contentType?.startsWith("video/") &&
+      processVideo
+    ) {
+      await processVideo.trigger(
+        {
+          videoUrl: key,
+          teamId,
+          docId: key.split("/")[1],
+          documentVersionId: document.versions[0].id,
+          fileSize: fileSize || 0,
+        },
+        {
+          idempotencyKey: `${teamId}-${document.versions[0].id}`,
+          tags: [
+            `team_${teamId}`,
+            `document_${document.id}`,
+            `version:${document.versions[0].id}`,
+          ],
+          queue: conversionQueue?.(teamPlan),
+          concurrencyKey: teamId,
+        },
+      );
+    }
+
+    // skip triggering convert-pdf-to-image job for "notion" / "excel" documents
+    if (type === "pdf" && convertPdfToImageRoute) {
+      await convertPdfToImageRoute.trigger(
+        {
+          documentId: document.id,
+          documentVersionId: document.versions[0].id,
+          teamId,
+        },
+        {
+          idempotencyKey: `${teamId}-${document.versions[0].id}`,
+          tags: [
+            `team_${teamId}`,
+            `document_${document.id}`,
+            `version:${document.versions[0].id}`,
+          ],
+          queue: conversionQueue?.(teamPlan),
+          concurrencyKey: teamId,
+        },
+      );
+    }
+
+    if (type === "sheet" && enableExcelAdvancedMode) {
+      await copyFileToBucketServer({
+        filePath: document.versions[0].file,
+        storageType: document.versions[0].storageType,
+        teamId,
+      });
+
+      await prisma.documentVersion.update({
+        where: { id: document.versions[0].id },
+        data: { numPages: 1 },
+      });
+
+      try {
+        await fetch(
+          `${process.env.NEXTAUTH_URL}/api/revalidate?secret=${process.env.REVALIDATE_TOKEN}&documentId=${document.id}`,
+        );
+      } catch (error) {
+        console.error("Failed to revalidate document:", error);
+      }
     }
   }
 

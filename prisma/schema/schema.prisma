@@ -145,6 +145,10 @@ model View {
 
   uploadedDocuments DocumentUpload[] // uploaded documents by this view
 
+  // Local Analytics
+  pageViews PageView[]
+  viewMetadata ViewMetadata?
+
   // AI chats
   chats Chat[]
 
@@ -195,6 +199,7 @@ model Viewer {
   messages                  Message[]
 
   uploadedDocuments DocumentUpload[] // uploaded documents by this viewer
+
 
   // AI chats
   chats Chat[]

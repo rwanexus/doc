@@ -1,4 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import prisma from "@/lib/prisma";
 
 export default async function handle(
   req: NextApiRequest,
@@ -14,21 +15,22 @@ export default async function handle(
     return res.status(400).json({ error: "Document version ID is required" });
   }
 
-  // Skip Trigger.dev in self-hosted mode - return empty token
-  // This disables real-time progress tracking but allows links to work
-  if (!process.env.TRIGGER_SECRET_KEY) {
-    return res.status(200).json({ publicAccessToken: null, selfHosted: true });
-  }
-
   try {
-    const { generateTriggerPublicAccessToken } = await import("@/lib/utils/generate-trigger-auth-token");
-    const publicAccessToken = await generateTriggerPublicAccessToken(
-      `version:${documentVersionId}`,
-    );
-    return res.status(200).json({ publicAccessToken });
+    // Check local processing status
+    const status = await prisma.documentProcessingStatus.findUnique({
+      where: { documentVersionId },
+    });
+
+    // Return local mode flag so frontend knows to poll local API
+    return res.status(200).json({
+      localMode: true,
+      status: status?.status || "COMPLETED",
+      progress: status?.progress || 100,
+      message: status?.message || null,
+      error: status?.error || null,
+    });
   } catch (error) {
-    console.error("Error generating token:", error);
-    // Return null token instead of error - allows app to continue
-    return res.status(200).json({ publicAccessToken: null, error: "Token generation skipped" });
+    console.error("Error getting processing status:", error);
+    return res.status(500).json({ error: "Failed to get processing status" });
   }
 }

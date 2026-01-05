@@ -1,0 +1,51 @@
+// Local Analytics - Replacing Tinybird
+
+model PageView {
+  id            String   @id @default(cuid())
+  viewId        String
+  view          View     @relation(fields: [viewId], references: [id], onDelete: Cascade)
+  documentId    String
+  pageNumber    Int
+  versionNumber Int      @default(1)
+  duration      Int      @default(0) // Duration in milliseconds
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([viewId, documentId, pageNumber], name: "viewId_documentId_pageNumber")
+  @@index([viewId])
+  @@index([documentId])
+  @@index([documentId, viewId])
+}
+
+model ViewMetadata {
+  id        String   @id @default(cuid())
+  viewId    String   @unique
+  view      View     @relation(fields: [viewId], references: [id], onDelete: Cascade)
+  country   String?
+  city      String?
+  browser   String?
+  os        String?
+  device    String?
+  ip        String?
+  createdAt DateTime @default(now())
+}
+
+// Document Processing Status - Replacing Trigger.dev
+
+model DocumentProcessingStatus {
+  id                String           @id @default(cuid())
+  documentVersionId String           @unique
+  status            ProcessingStatus @default(QUEUED)
+  progress          Int              @default(0) // 0-100
+  message           String?
+  error             String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+enum ProcessingStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
