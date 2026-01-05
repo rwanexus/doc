@@ -45,6 +45,7 @@ export const putFile = async ({
   const { type, data, numPages, fileSize } = await match(
     NEXT_PUBLIC_UPLOAD_TRANSPORT,
   )
+    .with("local", async () => putFileLocal({ file, teamId, docId }))
     .with("s3", async () => putFileInS3({ file, teamId, docId }))
     .with("vercel", async () => putFileInVercel(file))
     .otherwise(() => {
@@ -336,4 +337,56 @@ const putFileMultipart = async ({
     console.log("Falling back to single upload...");
     return await putFileSingle({ file, teamId, docId });
   }
+};
+
+// Local file upload via API
+const putFileLocal = async ({
+  file,
+  teamId,
+  docId,
+}: {
+  file: File;
+  teamId: string;
+  docId?: string;
+}): Promise<{
+  type: DocumentStorageType;
+  data: string;
+  numPages: number;
+  fileSize: number;
+}> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("teamId", teamId);
+  if (docId) {
+    formData.append("docId", docId);
+  }
+
+  const response = await fetch("/api/file/local-upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("Local upload failed");
+  }
+
+  const result = await response.json();
+
+  // Get page count for PDF files
+  let numPages = 1;
+  if (file.type === "application/pdf") {
+    try {
+      const body = await file.arrayBuffer();
+      numPages = await getPagesCount(body);
+    } catch (e) {
+      console.error("Failed to get PDF page count:", e);
+    }
+  }
+
+  return {
+    type: result.type as DocumentStorageType,
+    data: result.data,
+    numPages,
+    fileSize: result.fileSize || file.size,
+  };
 };

@@ -6,6 +6,7 @@ import path from "node:path";
 import { match } from "ts-pattern";
 
 import { newId } from "@/lib/id-helper";
+import { putFileLocalServer } from "./put-file-local-server";
 
 import { SUPPORTED_DOCUMENT_MIME_TYPES } from "../constants";
 import { getTeamS3ClientAndConfig } from "./aws-client";
@@ -31,6 +32,7 @@ export const putFileServer = async ({
   const NEXT_PUBLIC_UPLOAD_TRANSPORT = process.env.NEXT_PUBLIC_UPLOAD_TRANSPORT;
 
   const { type, data } = await match(NEXT_PUBLIC_UPLOAD_TRANSPORT)
+    .with("local", async () => putFileLocalServer({ file, teamId, docId }))
     .with("s3", async () =>
       putFileInS3Server({ file, teamId, docId, restricted }),
     )

@@ -13,6 +13,14 @@ export const getFile = async ({
   data,
   isDownload = false,
 }: GetFileOptions): Promise<string> => {
+  const UPLOAD_TRANSPORT = process.env.NEXT_PUBLIC_UPLOAD_TRANSPORT;
+  
+  // 如果是 local 模式且 type 是 S3_PATH，返回本地檔案 URL
+  if (UPLOAD_TRANSPORT === "local" && type === DocumentStorageType.S3_PATH) {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://doc.rwa.nexus";
+    return `${baseUrl}/api/file/local/${data}`;
+  }
+
   const url = await match(type)
     .with(DocumentStorageType.VERCEL_BLOB, () => {
       if (isDownload) {
