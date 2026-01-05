@@ -1,110 +1,140 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { useState } from "react";
 
-import DocLogo from "@/public/_static/doc-logo.svg";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
+import { z } from "zod";
 
-import LinkedIn from "@/components/shared/icons/linkedin";
+import { cn } from "@/lib/utils";
+
+import Google from "@/components/shared/icons/google";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Register() {
   const { next } = useParams as { next?: string };
 
   const [email, setEmail] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const emailSchema = z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(3, { message: "請輸入有效的 Email" })
+    .email({ message: "請輸入有效的 Email" });
+
+  const emailValidation = emailSchema.safeParse(email);
 
   return (
-    <div className="flex h-screen w-full justify-center">
-      <div
-        className="absolute inset-x-0 top-10 -z-10 flex transform-gpu justify-center overflow-hidden blur-3xl"
-        aria-hidden="true"
-      >
-        <div
-          className="aspect-[1108/632] w-[69.25rem] flex-none bg-gradient-to-r from-[#80caff] to-[#4f46e5] opacity-20"
-          style={{
-            clipPath:
-              "polygon(73.6% 51.7%, 91.7% 11.8%, 100% 46.4%, 97.4% 82.2%, 92.5% 84.9%, 75.7% 64%, 55.3% 47.5%, 46.5% 49.4%, 45% 62.9%, 50.3% 87.2%, 21.3% 64.1%, 0.1% 100%, 5.4% 51.1%, 21.4% 63.9%, 58.9% 0.2%, 73.6% 51.7%)",
-          }}
-        />
-      </div>
-      <div className="z-10 mx-5 mt-[calc(20vh)] h-fit w-full max-w-md overflow-hidden rounded-lg border border-border bg-gray-50 dark:bg-gray-900 sm:mx-0 sm:shadow-xl">
-        <div className="flex flex-col items-center justify-center space-y-3 px-4 py-6 pt-8 text-center sm:px-16">
-          <Link href="/">
-            <Image
-              src={DocLogo}
-              width={119}
-              height={32}
-              alt="Doc Logo"
-            />
-          </Link>
-          <h3 className="text-2xl font-medium text-foreground">
-            Start sharing documents
-          </h3>
+    <div className="flex min-h-screen w-full items-center justify-center bg-[#fafafa]">
+      <div className="z-10 mx-5 w-full max-w-md overflow-hidden rounded-xl bg-white p-8 shadow-lg">
+        {/* Logo */}
+        <div className="mb-8 flex justify-center">
+          <img
+            src="/_static/doc-logo.png"
+            alt="RWA Nexus"
+            className="h-16 w-auto"
+          />
         </div>
+        
+        {/* Title */}
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-[#1a3a6e]">
+            開始使用 Doc
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
+            建立帳號開始分享文件
+          </p>
+        </div>
+
+        {/* Email Form */}
         <form
-          className="flex flex-col gap-4 p-4 pt-8 sm:px-16"
+          className="flex flex-col gap-4"
           onSubmit={(e) => {
             e.preventDefault();
+            if (!emailValidation.success) {
+              toast.error(emailValidation.error.errors[0].message);
+              return;
+            }
+            setIsLoading(true);
             signIn("email", {
-              email: email,
+              email: emailValidation.data,
               redirect: false,
               ...(next && next.length > 0 ? { callbackUrl: next } : {}),
             }).then((res) => {
+              setIsLoading(false);
               if (res?.ok && !res?.error) {
                 setEmail("");
-                toast.success("Email sent - check your inbox!");
+                toast.success("郵件已發送 - 請檢查收件箱！");
               } else {
-                toast.error("Error sending email - try again?");
+                toast.error("發送失敗 - 請重試");
               }
             });
           }}
         >
+          <Label className="sr-only" htmlFor="email">
+            Email
+          </Label>
           <Input
-            className="border-4"
-            placeholder="jsmith@company.co"
+            id="email"
+            placeholder="name@example.com"
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            className={cn(
+              "h-12 rounded-lg border-2 bg-white px-4 text-gray-900 transition-colors focus:border-[#1a3a6e] focus:ring-0",
+              email.length > 0 && !emailValidation.success
+                ? "border-red-500"
+                : "border-gray-200",
+            )}
           />
-          <Button type="submit">Continue with Email</Button>
+          <Button
+            type="submit"
+            disabled={!emailValidation.success || isLoading}
+            className="h-12 w-full rounded-lg bg-[#1a3a6e] text-white transition-colors hover:bg-[#0f2847]"
+          >
+            {isLoading ? "發送中..." : "使用 Email 註冊"}
+          </Button>
         </form>
-        <p className="text-center">or</p>
-        <div className="flex flex-col space-y-2 px-4 py-8 sm:px-16">
-          <Button
-            onClick={() => {
-              signIn("google", {
-                ...(next && next.length > 0 ? { callbackUrl: next } : {}),
-              });
-            }}
-            className="flex items-center justify-center space-x-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 488 512"
-              fill="currentColor"
-              className="h-4 w-4"
-            >
-              <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
-            </svg>
-            <span>Continue with Google</span>
-          </Button>
-          <Button
-            onClick={() => {
-              signIn("linkedin", {
-                ...(next && next.length > 0 ? { callbackUrl: next } : {}),
-              });
-            }}
-            className="flex items-center justify-center space-x-2"
-          >
-            <LinkedIn />
-            <span>Continue with LinkedIn</span>
-          </Button>
+
+        {/* Divider */}
+        <div className="my-6 flex items-center">
+          <div className="flex-1 border-t border-gray-200"></div>
+          <span className="px-4 text-sm text-gray-500">或</span>
+          <div className="flex-1 border-t border-gray-200"></div>
         </div>
+
+        {/* Google Login */}
+        <Button
+          onClick={() => {
+            signIn("google", {
+              ...(next && next.length > 0 ? { callbackUrl: next } : {}),
+            });
+          }}
+          className="flex h-12 w-full items-center justify-center gap-3 rounded-lg border-2 border-gray-200 bg-white font-normal text-gray-700 transition-colors hover:bg-gray-50 hover:border-gray-300"
+        >
+          <Google className="h-5 w-5" />
+          <span>使用 Google 註冊</span>
+        </Button>
+
+        {/* Login Link */}
+        <p className="mt-6 text-center text-sm text-gray-600">
+          已有帳號？{" "}
+          <Link href="/login" className="text-[#1a3a6e] hover:underline">
+            登入
+          </Link>
+        </p>
+
+        {/* Footer */}
+        <p className="mt-6 text-center text-xs text-gray-500">
+          繼續即表示您同意我們的服務條款和隱私政策
+        </p>
       </div>
     </div>
   );

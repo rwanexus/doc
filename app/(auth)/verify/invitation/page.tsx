@@ -13,8 +13,8 @@ import InvitationStatusContent from "./InvitationStatusContent";
 import CleanUrlOnExpire from "./status/ClientRedirect";
 
 const data = {
-  description: "Accept your team invitation on Doc",
-  title: "Accept Invitation | Doc",
+  description: "接受團隊邀請",
+  title: "接受邀請 | Doc",
   url: "/verify/invitation",
 };
 
@@ -22,28 +22,6 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://doc.rwa.nexus"),
   title: data.title,
   description: data.description,
-  openGraph: {
-    title: data.title,
-    description: data.description,
-    url: data.url,
-    siteName: "Doc",
-    images: [
-      {
-        url: "/_static/meta-image.png",
-        width: 800,
-        height: 600,
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: data.title,
-    description: data.description,
-    creator: "@doc_rwa_nexus",
-    images: ["/_static/meta-image.png"],
-  },
 };
 
 export default async function VerifyInvitationPage({
@@ -89,124 +67,56 @@ export default async function VerifyInvitationPage({
   return (
     <>
       <CleanUrlOnExpire shouldClean={isExpired || isRevoked} />
-      <div className="flex h-screen w-full flex-wrap">
-        {/* Left part */}
-        <div className="flex h-full w-full items-center justify-center bg-white md:w-1/2 lg:w-2/5">
-          <div
-            className="absolute inset-x-0 top-10 -z-10 flex transform-gpu justify-center overflow-hidden blur-3xl"
-            aria-hidden="true"
-          ></div>
-          <div className="z-10 mx-auto h-fit w-full max-w-md overflow-hidden rounded-lg">
-            <div className="flex flex-col items-center justify-center space-y-3 px-4 py-6 pt-8 text-center sm:px-16">
-              <Link href="/">
-                <span className="text-balance text-2xl font-semibold text-gray-800">
-                  Welcome to Doc
-                </span>
-              </Link>
-              {!isExpired && !isRevoked && (
-                <>
-                  <h3 className="text-balance py-1 text-sm font-normal text-gray-800">
-                    You&apos;ve been invited to join a team on Doc
-                  </h3>
-                  <div className="mt-2 flex w-auto items-center justify-center gap-2 rounded-full bg-gray-50 px-5 py-2.5 text-sm text-gray-600 shadow-sm">
-                    <MailIcon className="h-4 w-4 text-gray-400" />
-                    {email}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {isRevoked || isExpired ? (
-              <div className="px-4 py-6 sm:px-16">
-                <InvitationStatusContent status={"expired"} />
-              </div>
-            ) : (
+      <div className="flex min-h-screen w-full items-center justify-center bg-[#fafafa]">
+        <div className="z-10 mx-5 w-full max-w-md overflow-hidden rounded-xl bg-white p-8 shadow-lg">
+          {/* Logo */}
+          <div className="mb-8 flex justify-center">
+            <img
+              src="/_static/doc-logo.png"
+              alt="RWA Nexus"
+              className="h-16 w-auto"
+            />
+          </div>
+          
+          {/* Title */}
+          <div className="mb-6 text-center">
+            <h1 className="text-2xl font-bold text-[#1a3a6e]">
+              團隊邀請
+            </h1>
+            {!isExpired && !isRevoked && (
               <>
-                <div className="flex flex-col gap-4 px-4 pt-8 sm:px-16">
-                  <div className="relative">
-                    <AcceptInvitationButton
-                      verificationUrl={verification_url}
-                    />
-                  </div>
-                  {expiresAt ? (
-                    <div className="text-center text-sm text-gray-500">
-                      <p className="flex items-center justify-center gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-amber-700">
-                        <ClockIcon className="h-4 w-4 text-amber-500" />
-                        <span>
-                          Expires on{" "}
-                          <span className="font-medium">
-                            {format(new Date(expiresAt), "MMM d, yyyy")}
-                          </span>{" "}
-                          at{" "}
-                          <span className="font-medium">
-                            {format(new Date(expiresAt), "h:mm a")}
-                          </span>
-                        </span>
-                      </p>
-                    </div>
-                  ) : null}
-                </div>
-                <p className="mt-10 w-full max-w-md px-4 text-xs text-muted-foreground sm:px-16">
-                  By accepting this invitation, you acknowledge that you have
-                  read and agree to Doc&apos;s{" "}
-                  <a
-                    href={`${process.env.NEXT_PUBLIC_MARKETING_URL}/terms`}
-                    target="_blank"
-                    className="underline hover:text-gray-900"
-                  >
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a
-                    href={`${process.env.NEXT_PUBLIC_MARKETING_URL}/privacy`}
-                    target="_blank"
-                    className="underline hover:text-gray-900"
-                  >
-                    Privacy Policy
-                  </a>
-                  .
+                <p className="mt-2 text-sm text-gray-600">
+                  您已被邀請加入 Doc 團隊
                 </p>
+                <div className="mt-4 flex items-center justify-center gap-2 rounded-full bg-gray-100 px-4 py-2 text-sm text-gray-600">
+                  <MailIcon className="h-4 w-4 text-gray-400" />
+                  {email}
+                </div>
               </>
             )}
           </div>
-        </div>
-        {/* Right part */}
-        <div className="hidden h-full w-full justify-center bg-gray-800 md:flex md:w-1/2 lg:w-3/5">
-          <div className="flex w-full max-w-5xl px-4 py-20 md:px-8">
-            <div
-              className="mx-auto flex w-full max-w-5xl justify-center rounded-3xl bg-gray-800 px-4 py-20 md:px-8"
-              id="features"
-            >
-              <div className="flex flex-col items-center justify-center">
-                {/* Image container */}
-                <div className="mb-4 h-64 w-64">
-                  <img
-                    className="h-full w-full rounded-2xl object-cover shadow-2xl"
-                    src="/_static/testimonials/jaski.jpeg"
-                    alt="Jaski"
-                  />
+
+          {isRevoked || isExpired ? (
+            <InvitationStatusContent status="expired" />
+          ) : (
+            <>
+              <AcceptInvitationButton verificationUrl={verification_url} />
+              
+              {expiresAt && (
+                <div className="mt-4 flex items-center justify-center gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-700">
+                  <ClockIcon className="h-4 w-4 text-amber-500" />
+                  <span>
+                    到期時間: {format(new Date(expiresAt), "yyyy/MM/dd HH:mm")}
+                  </span>
                 </div>
-                {/* Text content */}
-                <div className="max-w-xl text-center">
-                  <blockquote className="text-l text-balance leading-8 text-gray-100 sm:text-xl sm:leading-9">
-                    <p>
-                      True builders listen to their users and build what they
-                      need. Thanks Doc team for solving a big pain point.
-                      DocSend monopoly will end soon!
-                    </p>
-                  </blockquote>
-                  <figcaption className="mt-4">
-                    <div className="text-balance font-semibold text-white">
-                      Jaski
-                    </div>
-                    <div className="text-balance text-gray-400">
-                      Founder, Townhall Network
-                    </div>
-                  </figcaption>
-                </div>
-              </div>
-            </div>
-          </div>
+              )}
+            </>
+          )}
+
+          {/* Footer */}
+          <p className="mt-8 text-center text-xs text-gray-500">
+            接受邀請即表示您同意我們的服務條款和隱私政策
+          </p>
         </div>
       </div>
     </>
