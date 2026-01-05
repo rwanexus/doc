@@ -2,17 +2,22 @@
 
 This project is a fork of [Papermark](https://github.com/mfts/papermark) - The open-source DocSend alternative.
 
+## Self-Hosted Deployment
+
+This instance is deployed at **doc.rwa.nexus** as a document sharing service.
+
 ## Original License
 
-The original Papermark project is licensed under AGPLv3 with certain Enterprise Edition (EE) components under a commercial license.
+The original project is licensed under AGPLv3 with certain Enterprise Edition (EE) components under a commercial license.
 
 ## Modifications
 
-This fork has been modified for self-hosted deployment at doc.rwa.nexus:
+This fork has been modified for self-hosted deployment:
 
 1. **Enterprise Edition Disabled**: The `/ee` and `/app/(ee)` directories have been disabled to comply with the commercial license requirements.
 2. **Custom Domain Configuration**: Modified `middleware.ts` to support `doc.rwa.nexus` as the primary application host.
 3. **Environment Configuration**: Configured for local PostgreSQL database.
+4. **Service Renamed**: Renamed from "Papermark" to "Doc" for internal use.
 
 ## Source Code Availability (AGPLv3 Compliance)
 
