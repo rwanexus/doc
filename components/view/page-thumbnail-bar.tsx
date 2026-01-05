@@ -47,62 +47,61 @@ export default function PageThumbnailBar({
     }
   };
 
-  // 使用品牌色或預設深綠色 (與 crm.rwa.nexus 一致)
-  const accentColor = brand?.brandColor || "#0d6e6e"; // 深藍綠色
+  const accentColor = brand?.brandColor || "#0d6e6e";
+  const hasThumbnails = pages && pages.length > 0;
 
   if (!mounted || numPages === 0) return null;
 
   return createPortal(
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center pb-4">
-      {/* Thumbnail Preview Tooltip */}
-      {hoveredPage !== null && pages && pages[hoveredPage - 1] && (
+      {/* Thumbnail Preview Tooltip - 顯示在頁面條上方 */}
+      {hoveredPage !== null && hasThumbnails && pages[hoveredPage - 1] && (
         <div
-          className="pointer-events-none absolute z-[60] transition-opacity duration-200"
+          className="pointer-events-none absolute z-[60]"
           style={{
             left: tooltipPosition.x,
-            top: tooltipPosition.y - 10,
-            transform: "translate(-50%, -100%)",
+            bottom: 80, // 固定在頁面條上方
+            transform: "translateX(-50%)",
           }}
         >
-          <div className="rounded-lg bg-gray-900/95 p-2 shadow-2xl">
+          <div className="rounded-lg bg-gray-900 p-2 shadow-2xl" style={{ border: "1px solid #0d6e6e" }}>
             <img
               src={pages[hoveredPage - 1].file}
               alt={`頁面 ${hoveredPage}`}
-              className="h-40 w-auto rounded border border-gray-700 object-contain"
-              style={{ maxWidth: "200px" }}
+              className="h-32 w-auto rounded object-contain"
+              style={{ maxWidth: "160px" }}
             />
-            <div className="mt-1 text-center text-xs text-white">
+            <div className="mt-1 text-center text-xs font-medium" style={{ color: accentColor }}>
               頁面 {hoveredPage} / {numPages}
             </div>
           </div>
         </div>
       )}
 
-      {/* Page number tooltip when no thumbnails */}
-      {hoveredPage !== null && (!pages || !pages[hoveredPage - 1]) && (
+      {/* Page number tooltip - 無縮圖時顯示頁碼 */}
+      {hoveredPage !== null && !hasThumbnails && (
         <div
-          className="pointer-events-none absolute z-[60] transition-opacity duration-200"
+          className="pointer-events-none absolute z-[60]"
           style={{
             left: tooltipPosition.x,
-            top: tooltipPosition.y - 10,
-            transform: "translate(-50%, -100%)",
+            bottom: 60, // 固定在頁面條上方
+            transform: "translateX(-50%)",
           }}
         >
-          <div className="rounded-lg bg-gray-900/95 px-3 py-2 shadow-2xl">
-            <div className="text-center text-sm font-medium text-white">
+          <div className="rounded-lg bg-gray-900 px-4 py-2 shadow-2xl" style={{ border: "1px solid #0d6e6e" }}>
+            <div className="text-center text-sm font-medium" style={{ color: accentColor }}>
               頁面 {hoveredPage}
             </div>
           </div>
         </div>
       )}
 
-      {/* Page Bar - 深綠色主題 */}
+      {/* Page Bar */}
       <div
         ref={barRef}
-        className="pointer-events-auto flex items-center rounded-full bg-gray-900/80 px-3 py-2 backdrop-blur-sm"
-        style={{ border: "1px solid rgba(13, 110, 110, 0.3)" }}
+        className="pointer-events-auto flex items-center rounded-full bg-gray-900/90 px-3 py-2 backdrop-blur-sm"
+        style={{ border: "1px solid rgba(13, 110, 110, 0.4)" }}
       >
-        {/* Page segments */}
         <div className="flex items-center gap-0.5">
           {Array.from({ length: numPages }, (_, i) => {
             const page = i + 1;
@@ -112,28 +111,28 @@ export default function PageThumbnailBar({
             return (
               <div
                 key={page}
-                className="relative cursor-pointer"
+                className="relative cursor-pointer px-0.5"
                 onMouseEnter={(e) => handleMouseMove(e, page)}
                 onMouseMove={(e) => handleMouseMove(e, page)}
                 onMouseLeave={handleMouseLeave}
                 onClick={() => handlePageClick(page)}
               >
                 <div
-                  className={`transition-all duration-200 ${
-                    numPages <= 20 ? "w-4" : numPages <= 50 ? "w-2" : "w-1"
+                  className={`transition-all duration-150 ${
+                    numPages <= 20 ? "w-3" : numPages <= 50 ? "w-2" : "w-1"
                   } ${
                     isCurrentPage
-                      ? "h-3 rounded-sm"
+                      ? "h-4 rounded"
                       : isHovered
-                        ? "h-2.5 rounded-sm"
-                        : "h-1.5 rounded-full"
+                        ? "h-3 rounded"
+                        : "h-2 rounded-full"
                   }`}
                   style={{
                     backgroundColor: isCurrentPage
-                      ? accentColor // 深綠色 - 當前頁面
+                      ? accentColor
                       : isHovered
-                        ? "#0a5555" // 淺綠色 - 懸停
-                        : "rgba(255,255,255,0.3)",
+                        ? "#0a5555"
+                        : "rgba(255,255,255,0.25)",
                   }}
                 />
               </div>
@@ -141,15 +140,11 @@ export default function PageThumbnailBar({
           })}
         </div>
 
-        {/* Page number indicator - 深綠色強調 */}
         <div className="ml-3 flex items-center text-sm">
-          <span 
-            className="font-medium" 
-            style={{ fontVariantNumeric: "tabular-nums", color: accentColor }}
-          >
+          <span className="font-bold" style={{ fontVariantNumeric: "tabular-nums", color: accentColor }}>
             {pageNumber}
           </span>
-          <span className="mx-1 text-gray-400">/</span>
+          <span className="mx-1 text-gray-500">/</span>
           <span className="text-gray-400" style={{ fontVariantNumeric: "tabular-nums" }}>
             {numPages}
           </span>
