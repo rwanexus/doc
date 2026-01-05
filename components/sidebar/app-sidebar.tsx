@@ -231,10 +231,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
     >
       <SidebarHeader className="gap-y-8">
-        <p className="hidden w-full justify-center text-2xl font-bold tracking-tighter text-black group-data-[collapsible=icon]:inline-flex dark:text-white">
-          <Link href="/dashboard">P</Link>
+        <p className="hidden w-full justify-center text-2xl font-bold tracking-tighter text-[#1a3a6e] group-data-[collapsible=icon]:inline-flex dark:text-white">
+          <Link href="/dashboard"><img src="/_static/doc-icon.svg" alt="Doc" className="h-6 w-6" /></Link>
         </p>
-        <p className="ml-2 flex items-center text-2xl font-bold tracking-tighter text-black group-data-[collapsible=icon]:hidden dark:text-white">
+        <p className="ml-2 flex items-center text-2xl font-bold tracking-tighter text-[#1a3a6e] group-data-[collapsible=icon]:hidden dark:text-white">
           <Link href="/dashboard">Doc</Link>
           {userPlan && !isFree && !isDataroomsPlus && !isDataroomsPremium ? (
             <span className="relative ml-4 inline-flex items-center rounded-full bg-background px-2.5 py-1 text-xs tracking-normal text-foreground ring-1 ring-gray-800">

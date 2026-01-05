@@ -19,91 +19,77 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* white */
-    --foreground: 224 71.4% 4.1%; /* gray-950 */
+    /* RWA Nexus 風格 - 深藍色主題 */
+    --background: 0 0% 98%; /* #fafafa 淺灰背景 */
+    --foreground: 220 15% 10%; /* 深色文字 */
 
-    --muted: 220 14.3% 95.9%; /* gray-100 */
-    --muted-foreground: 220 8.9% 46.1%; /* gray-500 */
+    --muted: 220 14% 96%; /* 淺灰 */
+    --muted-foreground: 220 9% 46%;
 
-    --popover: 0 0% 100%; /* white */
-    --popover-foreground: 224 71.4% 4.1%; /* gray-950 */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 10%;
 
-    --card: 0 0% 100%; /* white */
-    --card-foreground: 224 71.4% 4.1%; /* gray-950 */
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 10%;
 
-    --border: 220 13% 91%; /* gray-200 */
-    --input: 216 12.2% 83.9%; /* gray-300 */
+    --border: 220 13% 91%;
+    --input: 216 12% 84%;
 
-    --primary: 220.9 39.3% 11%; /* gray-900 */
-    --primary-foreground: 210 20% 98%; /* gray-50 */
+    /* 主色 - RWA Nexus 深藍 #1a3a6e */
+    --primary: 216 61% 27%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14.3% 95.9%; /* gray-100 */
-    --secondary-foreground: 220.9 39.3% 11%; /* gray-900 */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 216 61% 27%;
 
-    --accent: 220 14.3% 95.9%; /* gray-100 */
-    --accent-foreground: 220.9 39.3% 11%; /* gray-900 */
+    --accent: 199 89% 48%; /* RWA Nexus 淺藍 #0ea5e9 */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%; /* red-500 */
-    --destructive-foreground: 210 20% 98%; /* gray-50 */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%; /* amber-500 */
-    --warning-foreground: 210 20% 98%; /* gray-50 */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
-    --ring: 217.9 10.6% 64.9%; /* gray-400 */
+    --ring: 216 61% 27%;
 
-    --radius: 0.5rem; /* md */
-
-    --sidebar-background: 0 0% 98%; /* white */
-    --sidebar-foreground: 240 5.3% 26.1%; /* gray-900 */
-    --sidebar-primary: 240 5.9% 10%; /* gray-950 */
-    --sidebar-primary-foreground: 0 0% 98%; /* white */
-    --sidebar-accent: 240 4.8% 95.9%; /* gray-100 */
-    --sidebar-accent-foreground: 240 5.9% 10%; /* gray-950 */
-    --sidebar-border: 220 13% 91%; /* gray-200 */
-    --sidebar-ring: 217.2 91.2% 59.8%; /* gray-400 */
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 224 71.4% 4.1%; /* gray-950 */
-    --foreground: 210 20% 98%; /* gray-50 */
+    /* 深色模式 - RWA Nexus 風格 */
+    --background: 220 15% 8%; /* 深色背景 */
+    --foreground: 0 0% 95%;
 
-    --muted: 215 27.9% 16.9%; /* gray-800 */
-    --muted-foreground: 217.9 10.6% 64.9%; /* gray-400 */
+    --muted: 220 15% 15%;
+    --muted-foreground: 220 9% 60%;
 
-    --popover: 224 71.4% 4.1%; /* gray-950 */
-    --popover-foreground: 210 20% 98%; /* gray-50 */
+    --popover: 220 15% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --card: 224 71.4% 4.1%; /* gray-950 */
-    --card-foreground: 210 20% 98%; /* gray-50 */
+    --card: 220 15% 10%;
+    --card-foreground: 0 0% 95%;
 
-    --border: 215 27.9% 16.9%; /* gray-800 */
-    --input: 216.9 19.1% 26.7%; /* gray-700 */
+    --border: 220 15% 20%;
+    --input: 220 15% 25%;
 
-    --primary: 210 20% 98%; /* gray-50 */
-    --primary-foreground: 220.9 39.3% 11%; /* gray-900 */
+    /* 主色 - 深色模式稍亮 */
+    --primary: 216 61% 40%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 215 27.9% 16.9%; /* gray-800 */
-    --secondary-foreground: 210 20% 98%; /* gray-50 */
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 0 0% 95%;
 
-    --accent: 215 27.9% 16.9%; /* gray-800 */
-    --accent-foreground: 210 20% 98%; /* gray-50 */
+    --accent: 199 89% 48%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%; /* red-900 */
-    --destructive-foreground: 0 85.7% 97.3%; /* red-50 */
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --warning: 38 92% 30%; /* amber-800 */
-    --warning-foreground: 38 92% 95%; /* amber-50 */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
-    --ring: 215 27.9% 16.9%; /* gray-800 */
-
-    --sidebar-background: 240 5.9% 10%; /* gray-950 */
-    --sidebar-foreground: 240 4.8% 95.9%; /* gray-100 */
-    --sidebar-primary: 224.3 76.3% 48%; /* blue-500 */
-    --sidebar-primary-foreground: 0 0% 100%; /* white */
-    --sidebar-accent: 240 3.7% 15.9%; /* gray-200 */
-    --sidebar-accent-foreground: 240 4.8% 95.9%; /* gray-950 */
-    --sidebar-border: 240 3.7% 15.9%; /* gray-200 */
-    --sidebar-ring: 217.2 91.2% 59.8%; /* gray-400 */
+    --ring: 216 61% 50%;
   }
 }
 
@@ -116,24 +102,22 @@
   }
 }
 
-@layer utilities {
-  .touch-action-manipulation {
-    touch-action: manipulation;
-  }
+/* RWA Nexus 風格按鈕 */
+.btn-rwa {
+  @apply bg-[#1a3a6e] text-white hover:bg-[#0f2847] transition-colors;
+}
 
-  .touch-action-pinch-zoom {
-    touch-action: pinch-zoom;
-  }
+.btn-rwa-outline {
+  @apply border-2 border-[#1a3a6e] text-[#1a3a6e] hover:bg-[#1a3a6e] hover:text-white transition-colors;
+}
 
-  .transform-container {
-    transform-origin: 0 0;
-    will-change: transform;
-  }
+/* Card 樣式 - 淺背景深色邊框 */
+.card-rwa {
+  @apply bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow;
+}
 
-  .touch-zoom-container {
-    touch-action: none; /* Disable all browser handling */
-    -webkit-overflow-scrolling: touch;
-    isolation: isolate; /* Create a new stacking context */
-    contain: paint; /* Optimize rendering */
-  }
+/* 選擇顏色 */
+::selection {
+  background-color: rgba(26, 58, 110, 0.2);
+  color: #1a3a6e;
 }

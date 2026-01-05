@@ -41,7 +41,7 @@ export default function PauseResumeReminderEmail({
           <Container className="mx-auto my-[40px] w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
             <Section className="mt-[32px]">
               <Img
-                src={`${baseUrl}/_static/papermark-logo.png`}
+                src={`${baseUrl}/_static/doc-logo.png`}
                 width="160"
                 height="48"
                 alt="Papermark"

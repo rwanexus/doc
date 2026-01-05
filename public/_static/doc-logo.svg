@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- RWA Nexus style intertwined rings -->
+  <ellipse cx="100" cy="100" rx="70" ry="35" stroke="#1a3a6e" stroke-width="12" fill="none" transform="rotate(-45 100 100)"/>
+  <ellipse cx="100" cy="100" rx="70" ry="35" stroke="#0ea5e9" stroke-width="12" fill="none" transform="rotate(45 100 100)"/>
+</svg>

@@ -58,6 +58,13 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // RWA Nexus 品牌顏色
+        rwa: {
+          primary: "#1a3a6e",
+          "primary-dark": "#0f2847",
+          "primary-light": "#2a5298",
+          accent: "#0ea5e9",
+        },
         tremor: {
           brand: {
             faint: "#eff6ff",
