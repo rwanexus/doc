@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { generateTriggerPublicAccessToken } from "@/lib/utils/generate-trigger-auth-token";
-
 export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -16,13 +14,21 @@ export default async function handle(
     return res.status(400).json({ error: "Document version ID is required" });
   }
 
+  // Skip Trigger.dev in self-hosted mode - return empty token
+  // This disables real-time progress tracking but allows links to work
+  if (!process.env.TRIGGER_SECRET_KEY) {
+    return res.status(200).json({ publicAccessToken: null, selfHosted: true });
+  }
+
   try {
+    const { generateTriggerPublicAccessToken } = await import("@/lib/utils/generate-trigger-auth-token");
     const publicAccessToken = await generateTriggerPublicAccessToken(
       `version:${documentVersionId}`,
     );
     return res.status(200).json({ publicAccessToken });
   } catch (error) {
     console.error("Error generating token:", error);
-    return res.status(500).json({ error: "Failed to generate token" });
+    // Return null token instead of error - allows app to continue
+    return res.status(200).json({ publicAccessToken: null, error: "Token generation skipped" });
   }
 }

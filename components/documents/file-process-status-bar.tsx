@@ -26,13 +26,26 @@ export default function FileProcessStatusBar({
   onProcessingChange?: (processing: boolean) => void;
 }) {
   const [messageIndex, setMessageIndex] = useState(0);
-  const { data } = useSWRImmutable<{ publicAccessToken: string }>(
+  const { data } = useSWRImmutable<{ publicAccessToken: string | null; selfHosted?: boolean }>(
     `/api/progress-token?documentVersionId=${documentVersionId}`,
     fetcher,
   );
 
   const { status: progressStatus, error: progressError } =
-    useDocumentProgressStatus(documentVersionId, data?.publicAccessToken);
+    useDocumentProgressStatus(documentVersionId, data?.publicAccessToken ?? undefined);
+
+  // Self-hosted mode: skip progress tracking, assume completed immediately
+  useEffect(() => {
+    if (data?.selfHosted || (data?.publicAccessToken === null)) {
+      // In self-hosted mode without Trigger.dev, assume document is ready
+      onProcessingChange?.(false);
+      // Trigger a refresh to get the actual document status
+      const timer = setTimeout(() => {
+        mutateDocument();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [data?.selfHosted, data?.publicAccessToken, mutateDocument, onProcessingChange]);
 
   // Update processing state whenever status changes
   useEffect(() => {
@@ -58,6 +71,11 @@ export default function FileProcessStatusBar({
       if (interval) clearInterval(interval);
     };
   }, [progressStatus.state]);
+
+  // Self-hosted mode: don't show progress bar, assume ready
+  if (data?.selfHosted || (data && data.publicAccessToken === null)) {
+    return null;
+  }
 
   if (progressStatus.state === "QUEUED" && !progressError) {
     return (
