@@ -80,6 +80,7 @@
     "@tus/s3-store": "^1.9.1",
     "@tus/server": "^1.10.2",
     "@tus/utils": "^0.5.1",
+    "@types/nodemailer": "^7.0.4",
     "@upstash/qstash": "^2.8.4",
     "@upstash/ratelimit": "^2.0.7",
     "@upstash/redis": "^1.36.0",

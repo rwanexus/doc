@@ -340,24 +340,12 @@ export default function ViewsTable({
   };
 
   const UpgradeOrExportButton = () => {
-    if (isFree && !isTrial) {
-      return (
-        <UpgradeButton
-          text="Export"
-          clickedPlan={PlanEnum.Pro}
-          trigger="dashboard_views_export"
-          variant="outline"
-          size="sm"
-        />
-      );
-    } else {
-      return (
-        <Button variant="outline" size="sm" onClick={handleExport}>
-          <Download className="!size-4" />
-          Export
-        </Button>
-      );
-    }
+    return (
+      <Button variant="outline" size="sm" onClick={handleExport}>
+        <Download className="!size-4" />
+        Export
+      </Button>
+    );
   };
 
   return (

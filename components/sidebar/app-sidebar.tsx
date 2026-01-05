@@ -208,12 +208,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           },
         ],
       },
-      {
-        title: "2025 Recap",
-        url: "/dashboard?openRecap=true",
-        icon: SparklesIcon,
-        current: false,
-      },
+
     ],
   };
 
@@ -296,42 +291,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu className="group-data-[collapsible=icon]:hidden">
           <SidebarMenuItem>
             <div>
-              {/*
-               * Show Slack banner to all users if they haven't dismissed it and don't have Slack connected
-               */}
-              {!slackIntegration && showSlackBanner ? (
-                <SlackBanner setShowSlackBanner={setShowSlackBanner} />
-              ) : null}
-              {/*
-               * if user is free and showProBanner is true show pro banner
-               */}
-              {isFree && showProBanner ? (
-                <ProBanner setShowProBanner={setShowProBanner} />
-              ) : null}
 
-              <div className="mb-2">
-                {linksLimit ? (
-                  <UsageProgress
-                    title="Links"
-                    unit="links"
-                    usage={limits?.usage?.links}
-                    usageLimit={linksLimit}
-                  />
-                ) : null}
-                {documentsLimit ? (
-                  <UsageProgress
-                    title="Documents"
-                    unit="documents"
-                    usage={limits?.usage?.documents}
-                    usageLimit={documentsLimit}
-                  />
-                ) : null}
-                {linksLimit || documentsLimit ? (
-                  <p className="mt-2 px-2 text-xs text-muted-foreground">
-                    Change plan to increase usage limits
-                  </p>
-                ) : null}
-              </div>
+
+
+
             </div>
           </SidebarMenuItem>
         </SidebarMenu>

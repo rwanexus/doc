@@ -2,12 +2,24 @@ import { JSXElementConstructor, ReactElement } from "react";
 
 import { render, toPlainText } from "@react-email/render";
 import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 import prisma from "@/lib/prisma";
 import { log, nanoid } from "@/lib/utils";
 
 export const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
+// Gmail SMTP transporter (fallback)
+const gmailTransporter = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD
+  ? nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    })
   : null;
 
 export const sendEmail = async ({
@@ -37,68 +49,88 @@ export const sendEmail = async ({
   scheduledAt?: string;
   unsubscribeUrl?: string;
 }) => {
-  if (!resend) {
-    // Throw an error if resend is not initialized
-    throw new Error("Resend not initialized");
-  }
-
   const html = await render(react);
   const plainText = toPlainText(html);
 
-  const fromAddress =
-    from ??
-    (marketing
-      ? "Marc from Doc <marc@updates.papermark.com>"
-      : system
-        ? "Doc <system@papermark.com>"
-        : verify
-          ? "Doc <system@verify.papermark.com>"
-          : !!scheduledAt
-            ? "Marc Seitz <marc@papermark.com>"
-            : "Marc from Doc <marc@papermark.io>");
+  // Use Resend if available
+  if (resend) {
+    const fromAddress =
+      from ??
+      (marketing
+        ? "Doc <marc@updates.papermark.com>"
+        : system
+          ? "Doc <system@papermark.com>"
+          : verify
+            ? "Doc <system@verify.papermark.com>"
+            : !!scheduledAt
+              ? "Marc Seitz <marc@papermark.com>"
+              : "Doc <marc@papermark.io>");
 
-  try {
-    const { data, error } = await resend.emails.send({
-      from: fromAddress,
-      to: test ? "delivered@resend.dev" : to,
-      cc: cc,
-      replyTo: marketing ? "marc@papermark.com" : replyTo,
-      subject,
-      react,
-      scheduledAt,
-      text: plainText,
-      headers: {
-        "X-Entity-Ref-ID": nanoid(),
-        ...(unsubscribeUrl ? { "List-Unsubscribe": unsubscribeUrl } : {}),
-      },
-    });
+    try {
+      const { data, error } = await resend.emails.send({
+        from: fromAddress,
+        to: test ? "delivered@resend.dev" : to,
+        cc: cc,
+        replyTo: marketing ? "marc@papermark.com" : replyTo,
+        subject,
+        react,
+        scheduledAt,
+        text: plainText,
+        headers: {
+          "X-Entity-Ref-ID": nanoid(),
+          ...(unsubscribeUrl ? { "List-Unsubscribe": unsubscribeUrl } : {}),
+        },
+      });
 
-    // Check if the email sending operation returned an error and throw it
-    if (error) {
+      if (error) {
+        log({
+          message: `Resend returned error when sending email: ${error.name} \n\n ${error.message}`,
+          type: "error",
+          mention: true,
+        });
+        throw error;
+      }
+      return data;
+    } catch (exception) {
       log({
-        message: `Resend returned error when sending email: ${error.name} \n\n ${error.message}`,
+        message: `Unexpected error when sending email: ${exception}`,
         type: "error",
         mention: true,
       });
+      throw exception;
+    }
+  }
+
+  // Fallback to Gmail SMTP
+  if (gmailTransporter) {
+    const fromAddress = from ?? `Doc <${process.env.GMAIL_USER}>`;
+    try {
+      const info = await gmailTransporter.sendMail({
+        from: fromAddress,
+        to: test ? process.env.GMAIL_USER : to,
+        cc: Array.isArray(cc) ? cc.join(", ") : cc,
+        replyTo: replyTo,
+        subject,
+        html,
+        text: plainText,
+      });
+      console.log("Email sent via Gmail:", info.messageId);
+      return { id: info.messageId };
+    } catch (error) {
+      console.error("Gmail send error:", error);
       throw error;
     }
-
-    // If there's no error, return the data
-    return data;
-  } catch (exception) {
-    // Log and rethrow any caught exceptions for upstream handling
-    log({
-      message: `Unexpected error when sending email: ${exception}`,
-      type: "error",
-      mention: true,
-    });
-    throw exception; // Rethrow the caught exception
   }
+
+  // No email service configured
+  console.log("No email service configured, skipping email to:", to, "Subject:", subject);
+  return null;
 };
 
 export const subscribe = async (email: string): Promise<void> => {
+  // Skip subscription if no Resend (Gmail doesn't support mailing lists)
   if (!resend) {
-    console.error("RESEND_API_KEY is not set in the .env. Skipping.");
+    console.log("Resend not configured, skipping subscription for:", email);
     return;
   }
 
@@ -124,7 +156,7 @@ export const subscribe = async (email: string): Promise<void> => {
 
 export const unsubscribe = async (email: string): Promise<void> => {
   if (!resend) {
-    console.error("RESEND_API_KEY is not set in the .env. Skipping.");
+    console.log("Resend not configured, skipping unsubscribe for:", email);
     return;
   }
 

@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
-import { checkRateLimit, rateLimiters } from "@/ee/features/security";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import PasskeyProvider from "@teamhanko/passkeys-next-auth-provider";
 import NextAuth, { type NextAuthOptions } from "next-auth";
@@ -10,6 +9,8 @@ import LinkedInProvider from "next-auth/providers/linkedin";
 
 import { identifyUser, trackAnalytics } from "@/lib/analytics";
 import { qstash } from "@/lib/cron";
+import { sendWelcomeEmail } from "@/lib/emails/send-welcome";
+import { subscribe } from "@/lib/resend";
 import { dub } from "@/lib/dub";
 import { isBlacklistedEmail } from "@/lib/edge-config/blacklist";
 import { sendVerificationRequestEmail } from "@/lib/emails/send-verification-request";
@@ -115,14 +116,13 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   cookies: {
     sessionToken: {
-      name: `${VERCEL_DEPLOYMENT ? "__Secure-" : ""}next-auth.session-token`,
+      name: "__Secure-next-auth.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        // When working on localhost, the cookie domain must be omitted entirely (https://stackoverflow.com/a/1188145)
-        domain: VERCEL_DEPLOYMENT ? ".papermark.com" : undefined,
-        secure: VERCEL_DEPLOYMENT,
+        domain: undefined,
+        secure: true,  // Always secure for HTTPS
       },
     },
   },
@@ -176,13 +176,25 @@ export const authOptions: NextAuthOptions = {
         userId: message.user.id,
       });
 
-      await qstash.publishJSON({
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/cron/welcome-user`,
-        body: {
-          userId: message.user.id,
-        },
-        delay: 15 * 60, // 15 minutes
-      });
+      // Self-hosted mode: send welcome email directly (no Qstash)
+      if (process.env.QSTASH_TOKEN) {
+        // Use Qstash for scheduled delivery
+        await qstash.publishJSON({
+          url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/cron/welcome-user`,
+          body: { userId: message.user.id },
+          delay: 15 * 60,
+        });
+      } else if (process.env.RESEND_API_KEY && message.user.email) {
+        // Send welcome email directly
+        try {
+          await Promise.allSettled([
+            sendWelcomeEmail({ user: { email: message.user.email, name: message.user.name } }),
+            subscribe(message.user.email),
+          ]);
+        } catch (e) {
+          console.error("Failed to send welcome email:", e);
+        }
+      }
     },
   },
 };
@@ -203,24 +215,7 @@ const getAuthOptions = (req: NextApiRequest): NextAuthOptions => {
           return false;
         }
 
-        // Apply rate limiting for signin attempts
-        try {
-          if (req) {
-            const clientIP = getIpAddress(req.headers);
-            const rateLimitResult = await checkRateLimit(
-              rateLimiters.auth,
-              clientIP,
-            );
-
-            if (!rateLimitResult.success) {
-              log({
-                message: `Rate limit exceeded for IP ${clientIP} during signin attempt`,
-                type: "error",
-              });
-              return false; // Block the signin
-            }
-          }
-        } catch (error) {}
+        // Rate limiting disabled for self-hosted deployment
 
         return true;
       },
