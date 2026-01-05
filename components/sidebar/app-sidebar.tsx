@@ -26,7 +26,6 @@ import { useFeatureFlags } from "@/lib/hooks/use-feature-flags";
 import { usePlan } from "@/lib/swr/use-billing";
 import useDatarooms from "@/lib/swr/use-datarooms";
 import useLimits from "@/lib/swr/use-limits";
-import { useSlackIntegration } from "@/lib/swr/use-slack-integration";
 
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
@@ -63,10 +62,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const linksLimit = limits?.links;
   const documentsLimit = limits?.documents;
 
-  // Check Slack integration status
-  const { integration: slackIntegration } = useSlackIntegration({
-    enabled: !!currentTeam?.id,
-  });
 
   // Check feature flags
   const { features } = useFeatureFlags();
@@ -178,11 +173,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             current: router.pathname.includes("settings/webhooks"),
           },
           {
-            title: "Slack",
-            url: "/settings/slack",
-            current: router.pathname.includes("settings/slack"),
-          },
-          {
             title: "Billing",
             url: "/settings/billing",
             current: router.pathname.includes("settings/billing"),
@@ -200,8 +190,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       return false;
     }
     return true;
-  });
 
+  });
   return (
     <Sidebar
       className="bg-gray-50 dark:bg-black"
