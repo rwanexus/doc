@@ -83,6 +83,36 @@ export function NavUser() {
     }
   };
 
+  // Show loading state or redirect if no session
+  if (status === "loading") {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" className="animate-pulse">
+            <div className="h-8 w-8 rounded-lg bg-muted" />
+            <div className="grid flex-1 gap-1">
+              <div className="h-4 w-24 rounded bg-muted" />
+              <div className="h-3 w-32 rounded bg-muted" />
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
+
+  if (status === "unauthenticated" || !session?.user) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg" onClick={() => signOut()}>
+            <LogOut className="h-4 w-4" />
+            <span>登入</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    );
+  }
+
   return (
     <>
       <SidebarMenu>
