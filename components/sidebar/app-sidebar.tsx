@@ -27,7 +27,6 @@ import { usePlan } from "@/lib/swr/use-billing";
 import useDatarooms from "@/lib/swr/use-datarooms";
 import useLimits from "@/lib/swr/use-limits";
 import { useSlackIntegration } from "@/lib/swr/use-slack-integration";
-import { nFormatter } from "@/lib/utils";
 
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavUser } from "@/components/sidebar/nav-user";
@@ -41,15 +40,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import ProBanner from "../billing/pro-banner";
-import { Progress } from "../ui/progress";
 import { BadgeTooltip } from "../ui/tooltip";
-import SlackBanner from "./banners/slack-banner";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
-  const [showProBanner, setShowProBanner] = useState<boolean | null>(null);
-  const [showSlackBanner, setShowSlackBanner] = useState<boolean | null>(null);
   const { currentTeam, teams, setCurrentTeam, isLoading }: TeamContextType =
     useTeam() || initialState;
   const {
@@ -79,19 +73,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Fetch datarooms for the current team
   const { datarooms } = useDatarooms();
-
-  useEffect(() => {
-    if (Cookies.get("hideProBanner") !== "pro-banner") {
-      setShowProBanner(true);
-    } else {
-      setShowProBanner(false);
-    }
-    if (Cookies.get("hideSlackBanner") !== "slack-banner") {
-      setShowSlackBanner(true);
-    } else {
-      setShowSlackBanner(false);
-    }
-  }, []);
 
   // Prepare datarooms items for sidebar (limit to first 5, sorted by most recent)
   const dataroomItems =
@@ -288,46 +269,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={filteredNavMain} />
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu className="group-data-[collapsible=icon]:hidden">
-          <SidebarMenuItem>
-            <div>
-
-
-
-
-            </div>
-          </SidebarMenuItem>
-        </SidebarMenu>
         <NavUser />
       </SidebarFooter>
     </Sidebar>
   );
 }
 
-function UsageProgress(data: {
-  title: string;
-  unit: string;
-  usage?: number;
-  usageLimit?: number;
-}) {
-  let { title, unit, usage, usageLimit } = data;
-  let usagePercentage = 0;
-  if (usage !== undefined && usageLimit !== undefined) {
-    usagePercentage = (usage / usageLimit) * 100;
-  }
-
-  return (
-    <div className="p-2">
-      <div className="mt-1 flex flex-col space-y-1">
-        {usage !== undefined && usageLimit !== undefined ? (
-          <p className="text-xs text-foreground">
-            <span>{nFormatter(usage)}</span> / {nFormatter(usageLimit)} {unit}
-          </p>
-        ) : (
-          <div className="h-5 w-32 animate-pulse rounded-md bg-muted" />
-        )}
-        <Progress value={usagePercentage} className="h-1 bg-muted" max={100} />
-      </div>
-    </div>
-  );
-}
