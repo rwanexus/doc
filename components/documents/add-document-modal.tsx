@@ -754,20 +754,7 @@ export function AddDocumentModal({
                       `After you upload a new version, the existing links will remain unchanged.`
                     ) : (
                       <span>
-                        After you upload the document, create a shareable link.{" "}
-                        {isFree && !isTrial ? (
-                          <>
-                            Upload larger files and more{" "}
-                            <Link
-                              href="https://doc.rwa.nexus/help/article/document-types"
-                              target="_blank"
-                              className="underline underline-offset-4 transition-all hover:text-muted-foreground/80 hover:dark:text-muted-foreground/80"
-                            >
-                              file types
-                            </Link>{" "}
-                            with a higher plan.
-                          </>
-                        ) : null}
+                        After you upload the document, create a shareable link.
                       </span>
                     )}
                   </CardDescription>
