@@ -19,77 +19,87 @@
 
 @layer base {
   :root {
-    /* RWA Nexus 風格 - 深藍色主題 */
-    --background: 0 0% 98%; /* #fafafa 淺灰背景 */
-    --foreground: 220 15% 10%; /* 深色文字 */
+    /* RWA Nexus 優雅深色主題 - 與 CRM 一致 */
+    --background: 210 20% 98%; /* #f8fafc 淺灰藍背景 */
+    --foreground: 216 28% 17%; /* #1e3a5f 深海軍藍文字 */
 
-    --muted: 220 14% 96%; /* 淺灰 */
-    --muted-foreground: 220 9% 46%;
+    --muted: 210 18% 95%; /* 淺灰藍 */
+    --muted-foreground: 215 16% 47%; /* 中灰藍 */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 10%;
+    --popover-foreground: 216 28% 17%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 15% 10%;
+    --card-foreground: 216 28% 17%;
 
-    --border: 220 13% 91%;
-    --input: 216 12% 84%;
+    --border: 214 20% 88%; /* 淺藍灰邊框 */
+    --input: 214 20% 88%;
 
-    /* 主色 - RWA Nexus 深藍 #1a3a6e */
-    --primary: 216 61% 27%;
+    /* 主色 - 優雅深海軍藍 #1e3a5f */
+    --primary: 216 52% 24%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 216 61% 27%;
+    --secondary: 210 18% 95%;
+    --secondary-foreground: 216 52% 24%;
 
-    --accent: 199 89% 48%; /* RWA Nexus 淺藍 #0ea5e9 */
+    /* 強調色 - 優雅深藍 #2563eb */
+    --accent: 217 91% 53%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    /* 破壞性 - 深紅 #b91c1c */
+    --destructive: 0 72% 41%;
     --destructive-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
+    /* 警告 - 深橙 */
+    --warning: 25 95% 45%;
     --warning-foreground: 0 0% 100%;
 
-    --ring: 216 61% 27%;
+    /* 成功 - 深綠 #15803d */
+    --success: 142 72% 29%;
+    --success-foreground: 0 0% 100%;
+
+    --ring: 216 52% 24%;
 
     --radius: 0.5rem;
   }
 
   .dark {
-    /* 深色模式 - RWA Nexus 風格 */
-    --background: 220 15% 8%; /* 深色背景 */
-    --foreground: 0 0% 95%;
+    /* 深色模式 - 優雅深藍 */
+    --background: 222 47% 8%; /* #0f172a */
+    --foreground: 210 40% 98%;
 
-    --muted: 220 15% 15%;
-    --muted-foreground: 220 9% 60%;
+    --muted: 217 33% 13%;
+    --muted-foreground: 215 20% 65%;
 
-    --popover: 220 15% 10%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 222 47% 10%;
+    --popover-foreground: 210 40% 98%;
 
-    --card: 220 15% 10%;
-    --card-foreground: 0 0% 95%;
+    --card: 222 47% 10%;
+    --card-foreground: 210 40% 98%;
 
-    --border: 220 15% 20%;
-    --input: 220 15% 25%;
+    --border: 217 33% 18%;
+    --input: 217 33% 22%;
 
-    /* 主色 - 深色模式稍亮 */
-    --primary: 216 61% 40%;
-    --primary-foreground: 0 0% 100%;
+    /* 主色 - 深色模式亮藍 */
+    --primary: 213 94% 68%;
+    --primary-foreground: 222 47% 8%;
 
-    --secondary: 220 15% 18%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 217 33% 15%;
+    --secondary-foreground: 210 40% 98%;
 
-    --accent: 199 89% 48%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 217 91% 65%;
+    --accent-foreground: 222 47% 8%;
 
-    --destructive: 0 62% 50%;
+    --destructive: 0 62% 55%;
     --destructive-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --ring: 216 61% 50%;
+    --success: 142 72% 45%;
+    --success-foreground: 222 47% 8%;
+
+    --ring: 213 94% 68%;
   }
 }
 
@@ -102,13 +112,13 @@
   }
 }
 
-/* RWA Nexus 風格按鈕 */
+/* RWA Nexus 風格按鈕 - 深海軍藍 */
 .btn-rwa {
-  @apply bg-[#1a3a6e] text-white hover:bg-[#0f2847] transition-colors;
+  @apply bg-[#1e3a5f] text-white hover:bg-[#152a44] transition-colors;
 }
 
 .btn-rwa-outline {
-  @apply border-2 border-[#1a3a6e] text-[#1a3a6e] hover:bg-[#1a3a6e] hover:text-white transition-colors;
+  @apply border-2 border-[#1e3a5f] text-[#1e3a5f] hover:bg-[#1e3a5f] hover:text-white transition-colors;
 }
 
 /* Card 樣式 - 淺背景深色邊框 */
@@ -118,6 +128,6 @@
 
 /* 選擇顏色 */
 ::selection {
-  background-color: rgba(26, 58, 110, 0.2);
-  color: #1a3a6e;
+  background-color: rgba(30, 58, 95, 0.2);
+  color: #1e3a5f;
 }

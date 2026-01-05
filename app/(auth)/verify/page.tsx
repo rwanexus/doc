@@ -59,7 +59,7 @@ export default function VerifyPage({
         
         {/* Title */}
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-[#1a3a6e]">
+          <h1 className="text-2xl font-bold text-[#1e3a5f]">
             驗證您的登入
           </h1>
           <p className="mt-2 text-sm text-gray-600">
@@ -69,7 +69,7 @@ export default function VerifyPage({
 
         {/* Verify Button */}
         <Link href={verification_url}>
-          <Button className="h-12 w-full rounded-lg bg-[#1a3a6e] text-white transition-colors hover:bg-[#0f2847]">
+          <Button className="h-12 w-full rounded-lg bg-[#1e3a5f] text-white transition-colors hover:bg-[#152a44]">
             驗證 Email
           </Button>
         </Link>

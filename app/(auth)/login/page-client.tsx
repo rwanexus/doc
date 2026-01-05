@@ -54,7 +54,7 @@ export default function Login() {
         
         {/* Title */}
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-[#1a3a6e]">
+          <h1 className="text-2xl font-bold text-[#1e3a5f]">
             歡迎使用 Doc
           </h1>
           <p className="mt-2 text-sm text-gray-600">
@@ -105,7 +105,7 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={cn(
-              "h-12 rounded-lg border-2 bg-white px-4 text-gray-900 transition-colors focus:border-[#1a3a6e] focus:ring-0",
+              "h-12 rounded-lg border-2 bg-white px-4 text-gray-900 transition-colors focus:border-[#1e3a5f] focus:ring-0",
               email.length > 0 && !emailValidation.success
                 ? "border-red-500"
                 : "border-gray-200",
@@ -116,7 +116,7 @@ export default function Login() {
               type="submit"
               loading={clickedMethod === "email"}
               disabled={!emailValidation.success || !!clickedMethod}
-              className="h-12 w-full rounded-lg bg-[#1a3a6e] text-white transition-colors hover:bg-[#0f2847]"
+              className="h-12 w-full rounded-lg bg-[#1e3a5f] text-white transition-colors hover:bg-[#152a44]"
             >
               {emailButtonText}
             </Button>

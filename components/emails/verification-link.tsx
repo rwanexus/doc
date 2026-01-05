@@ -28,7 +28,7 @@ const VerificationLinkEmail = ({
         <Body className="mx-auto my-auto bg-white font-sans">
           <Container className="mx-auto my-10 max-w-[600px] rounded border border-solid border-neutral-200 px-10 py-5">
             <Section className="mt-8">
-              <Text className="text-2xl font-bold tracking-tighter" style={{ color: "#1a3a6e" }}>
+              <Text className="text-2xl font-bold tracking-tighter" style={{ color: "#1e3a5f" }}>
                 Doc
               </Text>
             </Section>
@@ -44,7 +44,7 @@ const VerificationLinkEmail = ({
             <Section className="my-8">
               <Link
                 className="rounded-lg px-6 py-3 text-center text-[12px] font-semibold text-white no-underline"
-                style={{ backgroundColor: "#1a3a6e" }}
+                style={{ backgroundColor: "#1e3a5f" }}
                 href={url}
               >
                 登入 Doc
@@ -56,7 +56,7 @@ const VerificationLinkEmail = ({
             <Link
               href={url}
               className="max-w-sm flex-wrap break-words font-medium no-underline"
-              style={{ color: "#1a3a6e" }}
+              style={{ color: "#1e3a5f" }}
             >
               {url}
             </Link>

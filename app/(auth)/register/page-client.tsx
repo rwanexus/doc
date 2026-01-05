@@ -45,7 +45,7 @@ export default function Register() {
         
         {/* Title */}
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-[#1a3a6e]">
+          <h1 className="text-2xl font-bold text-[#1e3a5f]">
             開始使用 Doc
           </h1>
           <p className="mt-2 text-sm text-gray-600">
@@ -88,7 +88,7 @@ export default function Register() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={cn(
-              "h-12 rounded-lg border-2 bg-white px-4 text-gray-900 transition-colors focus:border-[#1a3a6e] focus:ring-0",
+              "h-12 rounded-lg border-2 bg-white px-4 text-gray-900 transition-colors focus:border-[#1e3a5f] focus:ring-0",
               email.length > 0 && !emailValidation.success
                 ? "border-red-500"
                 : "border-gray-200",
@@ -97,7 +97,7 @@ export default function Register() {
           <Button
             type="submit"
             disabled={!emailValidation.success || isLoading}
-            className="h-12 w-full rounded-lg bg-[#1a3a6e] text-white transition-colors hover:bg-[#0f2847]"
+            className="h-12 w-full rounded-lg bg-[#1e3a5f] text-white transition-colors hover:bg-[#152a44]"
           >
             {isLoading ? "發送中..." : "使用 Email 註冊"}
           </Button>
@@ -126,7 +126,7 @@ export default function Register() {
         {/* Login Link */}
         <p className="mt-6 text-center text-sm text-gray-600">
           已有帳號？{" "}
-          <Link href="/login" className="text-[#1a3a6e] hover:underline">
+          <Link href="/login" className="text-[#1e3a5f] hover:underline">
             登入
           </Link>
         </p>

@@ -80,7 +80,7 @@ export default async function VerifyInvitationPage({
           
           {/* Title */}
           <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold text-[#1a3a6e]">
+            <h1 className="text-2xl font-bold text-[#1e3a5f]">
               團隊邀請
             </h1>
             {!isExpired && !isRevoked && (
