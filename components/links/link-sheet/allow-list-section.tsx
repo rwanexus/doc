@@ -112,7 +112,7 @@ export default function AllowListSection({
               className="focus:ring-inset"
               rows={5}
               placeholder={`Enter allowed emails/domains, one per line, e.g.
-marc@papermark.com
+user@example.com
 @example.org`}
               value={allowListInput}
               onChange={handleAllowListChange}
