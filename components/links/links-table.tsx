@@ -839,13 +839,15 @@ export default function LinksTable({
                           </TableCell>
                         ) : null}
                         <TableCell>
-                          <CollapsibleTrigger
-                            disabled={
-                              Number(nFormatter(link._count.views)) === 0 ||
-                              targetType === "DATAROOM"
-                            }
-                          >
-                            <div className="flex items-center space-x-1 [&[data-state=open]>svg.chevron]:rotate-180">
+                          <CollapsibleTrigger asChild>
+                            <button
+                              type="button"
+                              disabled={
+                                Number(nFormatter(link._count.views)) === 0 ||
+                                targetType === "DATAROOM"
+                              }
+                              className="flex items-center space-x-1 [&[data-state=open]>svg.chevron]:rotate-180"
+                            >
                               <BarChart className="h-4 w-4 text-muted-foreground" />
                               <p className="whitespace-nowrap text-sm text-muted-foreground">
                                 {nFormatter(link._count.views)}
@@ -857,7 +859,7 @@ export default function LinksTable({
                               targetType !== "DATAROOM" ? (
                                 <ChevronDown className="chevron h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
                               ) : null}
-                            </div>
+                            </button>
                           </CollapsibleTrigger>
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
