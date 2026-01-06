@@ -63,3 +63,4 @@ lib/emails/marketing
 # changelog
 changelogee.disabled/
 app/(ee).disabled/
+/uploads/
