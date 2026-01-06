@@ -764,7 +764,7 @@ export default function DocumentHeader({
                 primaryVersion.type !== "email" && (
                   <DropdownMenuItem
                     onClick={() =>
-                      false
+                      isFree
                         ? handleUpgradeClick(
                             PlanEnum.Business,
                             "download-only-document",
@@ -781,7 +781,6 @@ export default function DocumentHeader({
                       <>
                         <CloudDownloadIcon className="mr-2 h-4 w-4" />
                         Set download only{" "}
-                        
                       </>
                     )}
                   </DropdownMenuItem>
@@ -812,14 +811,11 @@ export default function DocumentHeader({
               {/* Export views in CSV */}
               <DropdownMenuItem
                 onClick={() =>
-                  false
-                    ? handleUpgradeClick(PlanEnum.Pro, "export-document-visits")
-                    : exportVisitCounts(prismaDocument)
+                  exportVisitCounts(prismaDocument)
                 }
               >
                 <FileDownIcon className="mr-2 h-4 w-4" />
                 Export views{" "}
-                
               </DropdownMenuItem>
 
               {/* Download latest version */}
@@ -906,30 +902,10 @@ export default function DocumentHeader({
         </div>
       )}
 
-
-          <AlertBanner
-            id="advanced-excel-alert"
-            variant="default"
-            title="Advanced Excel mode"
-            description={
-              <>
-                You can turn on advanced excel mode by{" "}
-                <span
-                  className="hover:text-primary/ 80 cursor-pointer underline underline-offset-4"
-                  onClick={() =>
-                    handleUpgradeClick(PlanEnum.Pro, "advanced-excel-mode")
-                  }
-                >
-                  upgrading
-                </span>{" "}
-                to Pro plan to preserve the file formatting. This uses the
-                Microsoft Office viewer.
-              </>
-            }
-            onClose={() => handleCloseAlert("advanced-excel-alert")}
-          />
-        )}
-
+      {prismaDocument.type === "sheet" &&
+        !prismaDocument.advancedExcelEnabled &&
+        supportsAdvancedExcelMode(primaryVersion.contentType) &&
+        (isPro || isBusiness || isDatarooms || isTrial) && (
           <AlertBanner
             id="enable-advanced-excel-alert"
             variant="default"
