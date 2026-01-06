@@ -1,11 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
+import * as pdfjs from "pdfjs-dist";
+
+// 設定 PDF.js worker
+if (typeof window !== "undefined") {
+  pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+}
 
 interface PageThumbnailBarProps {
   pageNumber: number;
   numPages: number;
   pages?: { file: string; pageNumber: string }[];
-  pdfFile?: string;
+  pdfFile?: string; // PDF 檔案 URL
   onPageClick?: (page: number) => void;
   brand?: { brandColor?: string | null } | null;
 }
@@ -21,11 +27,60 @@ export default function PageThumbnailBar({
   const [hoveredPage, setHoveredPage] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [mounted, setMounted] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [isLoadingThumbnail, setIsLoadingThumbnail] = useState(false);
   const barRef = useRef<HTMLDivElement>(null);
+  const pdfDocRef = useRef<pdfjs.PDFDocumentProxy | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     setMounted(true);
-    return () => setMounted(false);
+    // 建立離屏 canvas
+    canvasRef.current = document.createElement("canvas");
+    return () => {
+      setMounted(false);
+      if (canvasRef.current) {
+        canvasRef.current = null;
+      }
+    };
+  }, []);
+
+  // 載入 PDF 文件
+  useEffect(() => {
+    if (pdfFile && !pdfDocRef.current) {
+      pdfjs.getDocument(pdfFile).promise.then((pdf) => {
+        pdfDocRef.current = pdf;
+      }).catch(console.error);
+    }
+  }, [pdfFile]);
+
+  // 產生縮圖
+  const generateThumbnail = useCallback(async (pageNum: number) => {
+    if (!pdfDocRef.current || !canvasRef.current) return;
+    
+    setIsLoadingThumbnail(true);
+    try {
+      const page = await pdfDocRef.current.getPage(pageNum);
+      const viewport = page.getViewport({ scale: 0.3 }); // 縮小比例
+      
+      const canvas = canvasRef.current;
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      
+      await page.render({
+        canvasContext: ctx,
+        viewport: viewport,
+      }).promise;
+      
+      setThumbnailUrl(canvas.toDataURL());
+    } catch (e) {
+      console.error("Failed to generate thumbnail:", e);
+    } finally {
+      setIsLoadingThumbnail(false);
+    }
   }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, page: number) => {
@@ -34,11 +89,18 @@ export default function PageThumbnailBar({
       x: rect.left + rect.width / 2,
       y: rect.top,
     });
-    setHoveredPage(page);
+    if (hoveredPage !== page) {
+      setHoveredPage(page);
+      // 如果有 PDF 檔案且沒有預渲染頁面，產生縮圖
+      if (pdfFile && (!pages || pages.length === 0)) {
+        generateThumbnail(page);
+      }
+    }
   };
 
   const handleMouseLeave = () => {
     setHoveredPage(null);
+    setThumbnailUrl(null);
   };
 
   const handlePageClick = (page: number) => {
@@ -49,18 +111,19 @@ export default function PageThumbnailBar({
 
   const accentColor = brand?.brandColor || "#0d6e6e";
   const hasThumbnails = pages && pages.length > 0;
+  const canGenerateThumbnails = pdfFile && !hasThumbnails;
 
   if (!mounted || numPages === 0) return null;
 
   return createPortal(
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center pb-4">
-      {/* Thumbnail Preview Tooltip - 顯示在頁面條上方 */}
+      {/* 預渲染頁面縮圖 */}
       {hoveredPage !== null && hasThumbnails && pages[hoveredPage - 1] && (
         <div
           className="pointer-events-none absolute z-[60]"
           style={{
             left: tooltipPosition.x,
-            bottom: 80, // 固定在頁面條上方
+            bottom: 80,
             transform: "translateX(-50%)",
           }}
         >
@@ -78,13 +141,47 @@ export default function PageThumbnailBar({
         </div>
       )}
 
-      {/* Page number tooltip - 無縮圖時顯示頁碼 */}
-      {hoveredPage !== null && !hasThumbnails && (
+      {/* PDF 即時產生的縮圖 */}
+      {hoveredPage !== null && canGenerateThumbnails && (
         <div
           className="pointer-events-none absolute z-[60]"
           style={{
             left: tooltipPosition.x,
-            bottom: 60, // 固定在頁面條上方
+            bottom: 80,
+            transform: "translateX(-50%)",
+          }}
+        >
+          <div className="rounded-lg bg-gray-900 p-2 shadow-2xl" style={{ border: "1px solid #0d6e6e" }}>
+            {isLoadingThumbnail ? (
+              <div className="flex h-32 w-24 items-center justify-center">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-600 border-t-white"></div>
+              </div>
+            ) : thumbnailUrl ? (
+              <img
+                src={thumbnailUrl}
+                alt={`頁面 ${hoveredPage}`}
+                className="h-32 w-auto rounded object-contain"
+                style={{ maxWidth: "160px" }}
+              />
+            ) : (
+              <div className="flex h-32 w-24 items-center justify-center text-gray-500">
+                預覽
+              </div>
+            )}
+            <div className="mt-1 text-center text-xs font-medium" style={{ color: accentColor }}>
+              頁面 {hoveredPage} / {numPages}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 無法產生縮圖時只顯示頁碼 */}
+      {hoveredPage !== null && !hasThumbnails && !canGenerateThumbnails && (
+        <div
+          className="pointer-events-none absolute z-[60]"
+          style={{
+            left: tooltipPosition.x,
+            bottom: 60,
             transform: "translateX(-50%)",
           }}
         >

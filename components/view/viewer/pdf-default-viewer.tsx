@@ -311,6 +311,7 @@ export default function PDFViewer(props: any) {
           </Document>
         </div>
         <PageThumbnailBar
+                pdfFile={props.file}
                 pageNumber={pageNumber}
                 numPages={numPages}
                 onPageClick={(page) => setPageNumber(page)}
