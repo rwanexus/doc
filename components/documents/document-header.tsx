@@ -342,7 +342,7 @@ export default function DocumentHeader({
 
   // export method to fetch the visits data and convert to csv.
   const exportVisitCounts = (document: Document) => {
-    if (isFree) {
+    if (false) { // Disabled for self-hosted
       toast.error("This feature is not available for your plan");
       return;
     }
@@ -764,7 +764,7 @@ export default function DocumentHeader({
                 primaryVersion.type !== "email" && (
                   <DropdownMenuItem
                     onClick={() =>
-                      isFree
+                      false
                         ? handleUpgradeClick(
                             PlanEnum.Business,
                             "download-only-document",
@@ -781,7 +781,7 @@ export default function DocumentHeader({
                       <>
                         <CloudDownloadIcon className="mr-2 h-4 w-4" />
                         Set download only{" "}
-                        {isFree && <PlanBadge className="ml-2" plan="pro" />}
+                        
                       </>
                     )}
                   </DropdownMenuItem>
@@ -812,14 +812,14 @@ export default function DocumentHeader({
               {/* Export views in CSV */}
               <DropdownMenuItem
                 onClick={() =>
-                  isFree
+                  false
                     ? handleUpgradeClick(PlanEnum.Pro, "export-document-visits")
                     : exportVisitCounts(prismaDocument)
                 }
               >
                 <FileDownIcon className="mr-2 h-4 w-4" />
                 Export views{" "}
-                {isFree && <PlanBadge className="ml-2" plan="pro" />}
+                
               </DropdownMenuItem>
 
               {/* Download latest version */}
@@ -906,33 +906,7 @@ export default function DocumentHeader({
         </div>
       )}
 
-      {isFree && prismaDocument.hasPageLinks && (
-        <AlertBanner
-          id="in-document-links-alert"
-          variant="destructive"
-          title="In-document links detected"
-          description={
-            <>
-              External in-document links are not available on the free plan.{" "}
-              <span
-                className="cursor-pointer underline underline-offset-4 hover:text-destructive/80"
-                onClick={() =>
-                  handleUpgradeClick(PlanEnum.Pro, "in-document-links")
-                }
-              >
-                Upgrade
-              </span>{" "}
-              to a higher plan to use this feature.
-            </>
-          }
-          onClose={() => handleCloseAlert("in-document-links-alert")}
-        />
-      )}
 
-      {prismaDocument.type === "sheet" &&
-        supportsAdvancedExcelMode(primaryVersion.contentType) &&
-        isFree &&
-        !isTrial && (
           <AlertBanner
             id="advanced-excel-alert"
             variant="default"
@@ -956,10 +930,6 @@ export default function DocumentHeader({
           />
         )}
 
-      {prismaDocument.type === "sheet" &&
-        !prismaDocument.advancedExcelEnabled &&
-        supportsAdvancedExcelMode(primaryVersion.contentType) &&
-        (isPro || isBusiness || isDatarooms || isTrial) && (
           <AlertBanner
             id="enable-advanced-excel-alert"
             variant="default"
