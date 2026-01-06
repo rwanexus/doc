@@ -182,3 +182,21 @@ WantedBy=multi-user.target
 
 **維護者:** RWA Nexus Team  
 **原始專案:** [Papermark](https://github.com/mfts/papermark)
+
+## Bug 修復記錄
+
+### 2026-01-07: 登入按鈕顯示問題修復
+
+**問題描述:**
+- 用戶已登入但左下角仍顯示「登入」按鈕
+- 點擊「登入」按鈕卻執行登出操作 (signOut)
+
+**原因分析:**
+- `session.user` 資料載入延遲時，判斷邏輯錯誤
+- 原本的條件 `status === "unauthenticated" || !session?.user` 在 session 還在載入時也會觸發
+
+**修復內容:**
+- 修改 `components/sidebar/nav-user.tsx`
+- 當 `status === "authenticated"` 但 `session.user` 尚未載入時，顯示載入動畫
+- 只有在 `status === "unauthenticated"` 時才顯示「登入」按鈕
+- 將「登入」按鈕改為導向 `/login` 頁面

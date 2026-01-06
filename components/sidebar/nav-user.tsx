@@ -83,8 +83,9 @@ export function NavUser() {
     }
   };
 
-  // Show loading state or redirect if no session
-  if (status === "loading") {
+  // Show loading state while session is being fetched
+  // Also show loading if authenticated but user data not yet available
+  if (status === "loading" || (status === "authenticated" && !session?.user)) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
@@ -100,13 +101,16 @@ export function NavUser() {
     );
   }
 
-  if (status === "unauthenticated" || !session?.user) {
+  // Only show login button if truly unauthenticated
+  if (status === "unauthenticated") {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton size="lg" onClick={() => signOut()}>
-            <LogOut className="h-4 w-4" />
-            <span>登入</span>
+          <SidebarMenuButton size="lg" asChild>
+            <Link href="/login">
+              <LogOut className="h-4 w-4" />
+              <span>登入</span>
+            </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
