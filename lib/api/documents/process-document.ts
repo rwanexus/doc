@@ -1,4 +1,5 @@
 import { get } from "@vercel/edge-config";
+import { ProcessingStatus } from "@prisma/client";
 import { parsePageId } from "notion-utils";
 
 import { DocumentData } from "@/lib/documents/create-document";
@@ -22,7 +23,6 @@ let convertCadToPdfTask: any;
 let conversionQueue: any;
 
 if (TRIGGER_ENABLED) {
-  // Import Trigger.dev tasks
   Promise.all([
     import("@/lib/trigger/convert-files").then(m => {
       convertFilesToPdfTask = m.convertFilesToPdfTask;
@@ -41,6 +41,69 @@ if (TRIGGER_ENABLED) {
   ]).catch(err => {
     console.warn("Failed to load Trigger.dev tasks:", err);
   });
+}
+
+// Local PDF processing function (self-hosted mode)
+async function processLocalPdf(documentVersionId: string, teamId: string) {
+  try {
+    console.log(`[Local Processing] Starting PDF processing for version: ${documentVersionId}`);
+    
+    // Update status to processing
+    await prisma.documentProcessingStatus.update({
+      where: { documentVersionId },
+      data: {
+        status: ProcessingStatus.PROCESSING,
+        progress: 10,
+        message: "正在處理文件...",
+      },
+    });
+
+    // Call the local processing API
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/local/process-document`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Use internal API key if available
+          ...(process.env.INTERNAL_API_KEY && {
+            Authorization: `Bearer ${process.env.INTERNAL_API_KEY}`,
+          }),
+        },
+        body: JSON.stringify({ documentVersionId, teamId }),
+      },
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Processing failed");
+    }
+
+    const result = await response.json();
+    console.log(`[Local Processing] Complete: ${result.numPages} pages processed`);
+
+    // Update status to completed
+    await prisma.documentProcessingStatus.update({
+      where: { documentVersionId },
+      data: {
+        status: ProcessingStatus.COMPLETED,
+        progress: 100,
+        message: `已處理 ${result.numPages} 頁`,
+      },
+    });
+  } catch (error) {
+    console.error("[Local Processing] Error:", error);
+    
+    // Update status to failed
+    await prisma.documentProcessingStatus.update({
+      where: { documentVersionId },
+      data: {
+        status: ProcessingStatus.FAILED,
+        progress: 0,
+        message: (error as Error).message,
+      },
+    });
+  }
 }
 
 type ProcessDocumentParams = {
@@ -73,7 +136,6 @@ export const processDocument = async ({
     enableExcelAdvancedMode,
   } = documentData;
 
-  // Get passed type property or alternatively, the file extension and save it as the type
   const type = supportedFileType || getExtension(name);
 
   // Check whether the Notion page is publically accessible or not
@@ -81,7 +143,6 @@ export const processDocument = async ({
     try {
       let pageId = parsePageId(key, { uuid: false });
 
-      // If parsePageId fails, try to get page ID from slug
       if (!pageId) {
         try {
           const pageIdFromSlug = await getNotionPageIdFromSlug(key);
@@ -91,7 +152,6 @@ export const processDocument = async ({
         }
       }
 
-      // if the page isn't accessible then end the process here.
       if (!pageId) {
         throw new Error("Notion page not found");
       }
@@ -138,7 +198,6 @@ export const processDocument = async ({
     },
   });
 
-  // determine if the document is download only
   const isDownloadOnly =
     type === "zip" ||
     type === "map" ||
@@ -188,37 +247,55 @@ export const processDocument = async ({
     },
   });
 
-  // If Trigger.dev is not enabled (self-hosted mode), mark as completed immediately
+  // Processing based on mode
   if (!TRIGGER_ENABLED) {
-    // Create processing status as COMPLETED for self-hosted
+    // Self-hosted mode - local processing
+    
+    // Create initial processing status
     await prisma.documentProcessingStatus.upsert({
       where: { documentVersionId: document.versions[0].id },
       update: {
-        status: "COMPLETED",
-        progress: 100,
-        message: "Document ready",
+        status: ProcessingStatus.QUEUED,
+        progress: 0,
+        message: "等待處理...",
       },
       create: {
         documentVersionId: document.versions[0].id,
-        status: "COMPLETED",
-        progress: 100,
-        message: "Document ready",
+        status: ProcessingStatus.QUEUED,
+        progress: 0,
+        message: "等待處理...",
       },
     });
+
+    // For PDF documents, process locally in background
+    if (type === "pdf") {
+      // Fire and forget - process in background
+      processLocalPdf(document.versions[0].id, teamId).catch(err => {
+        console.error("Background PDF processing failed:", err);
+      });
+    } else {
+      // For non-PDF documents, mark as completed immediately
+      await prisma.documentProcessingStatus.update({
+        where: { documentVersionId: document.versions[0].id },
+        data: {
+          status: ProcessingStatus.COMPLETED,
+          progress: 100,
+          message: "文件已就緒",
+        },
+      });
+    }
   } else {
     // Trigger.dev is enabled - use background processing
     
-    // Create initial processing status
     await prisma.documentProcessingStatus.create({
       data: {
         documentVersionId: document.versions[0].id,
-        status: "QUEUED",
+        status: ProcessingStatus.QUEUED,
         progress: 0,
         message: "Waiting to process...",
       },
     });
 
-    // Check if it's a Keynote file
     if (
       type === "slides" &&
       (contentType === "application/vnd.apple.keynote" ||
@@ -309,7 +386,6 @@ export const processDocument = async ({
       );
     }
 
-    // skip triggering convert-pdf-to-image job for "notion" / "excel" documents
     if (type === "pdf" && convertPdfToImageRoute) {
       await convertPdfToImageRoute.trigger(
         {
