@@ -49,3 +49,21 @@ enum ProcessingStatus {
   COMPLETED
   FAILED
 }
+
+model ClickEvent {
+  id            String   @id @default(cuid())
+  timestamp     DateTime
+  eventId       String   @unique
+  sessionId     String
+  linkId        String
+  documentId    String
+  viewId        String
+  pageNumber    String
+  href          String
+  versionNumber Int      @default(1)
+  dataroomId    String?
+  createdAt     DateTime @default(now())
+
+  @@index([documentId])
+  @@index([viewId])
+}

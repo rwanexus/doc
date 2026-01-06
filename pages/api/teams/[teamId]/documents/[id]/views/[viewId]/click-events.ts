@@ -49,9 +49,7 @@ export default async function handler(
       return res.status(401).end("Unauthorized");
     }
 
-    if (team.plan.includes("free")) {
-      return res.status(403).end("Forbidden");
-    }
+    // Free plan restriction removed for self-hosted
 
     const data = await getClickEventsByView({
       document_id: id,

@@ -180,7 +180,35 @@ export const recordClickEvent = TINYBIRD_ENABLED && tb
         dataroom_id: z.string().nullable(),
       }),
     })
-  : async () => {};
+  : async (data: {
+      timestamp: string;
+      event_id: string;
+      session_id: string;
+      link_id: string;
+      document_id: string;
+      view_id: string;
+      page_number: string;
+      href: string;
+      version_number: number;
+      dataroom_id: string | null;
+    }) => {
+      // Save to local database
+      const prismaModule = await import("@/lib/prisma");
+      await prismaModule.default.clickEvent.create({
+        data: {
+          timestamp: new Date(data.timestamp),
+          eventId: data.event_id,
+          sessionId: data.session_id,
+          linkId: data.link_id,
+          documentId: data.document_id,
+          viewId: data.view_id,
+          pageNumber: data.page_number,
+          href: data.href,
+          versionNumber: data.version_number,
+          dataroomId: data.dataroom_id,
+        },
+      });
+    };
 
 // Link view events - local no-op if Tinybird not enabled
 export const recordLinkViewTB = TINYBIRD_ENABLED && tb

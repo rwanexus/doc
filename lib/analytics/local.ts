@@ -376,8 +376,28 @@ export async function getVideoEventsByView(_params: { document_id: string; view_
 }
 
 // Click events - return empty array with proper type
-export async function getClickEventsByView(_params: { document_id: string; view_id: string }): Promise<{ data: ClickEvent[] }> {
-  return { data: [] };
+export async function getClickEventsByView(params: { document_id: string; view_id: string }): Promise<{ data: ClickEvent[] }> {
+  const clickEvents = await prisma.clickEvent.findMany({
+    where: {
+      documentId: params.document_id,
+      viewId: params.view_id,
+    },
+    orderBy: {
+      timestamp: 'desc',
+    },
+  });
+  
+  return {
+    data: clickEvents.map(e => ({
+      timestamp: e.timestamp.toISOString(),
+      document_id: e.documentId,
+      dataroom_id: e.dataroomId,
+      view_id: e.viewId,
+      page_number: e.pageNumber,
+      version_number: e.versionNumber,
+      href: e.href,
+    })),
+  };
 }
 
 // Webhook events - return empty for now
