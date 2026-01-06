@@ -81,7 +81,7 @@ export default function VisitorsTable({
     pageSize,
   );
   const { plan, isTrial, isPaused } = usePlan();
-  const isFreePlan = plan === "free";
+  const isFreePlan = false; // Always show visitor info for self-hosted
 
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
