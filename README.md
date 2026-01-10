@@ -200,3 +200,27 @@ WantedBy=multi-user.target
 - 當 `status === "authenticated"` 但 `session.user` 尚未載入時，顯示載入動畫
 - 只有在 `status === "unauthenticated"` 時才顯示「登入」按鈕
 - 將「登入」按鈕改為導向 `/login` 頁面
+
+## 最近更新 (2026-01-11)
+
+### 品牌更新
+- 更新 Logo 和 Icon 為 RWA Nexus 品牌
+- 更新 Favicon 為 RWA Nexus 圖標
+
+### 法律頁面
+新增法律頁面（位於 `/public/legal/`）：
+- 隱私權政策：`/legal/privacy-policy.html`
+- 免責聲明：`/legal/disclaimer.html`
+- 使用條款：`/legal/terms-of-use.html`
+
+### 側邊欄更新
+- 新增法律頁面連結（隱私權政策、免責聲明、使用條款）
+- 移除 All Datarooms、Visitors、Branding 選項
+- 簡化導航選單為：Dashboard、All Documents、Settings
+
+### 檔案變更
+- `/public/_static/doc-logo.png` - RWA Nexus 主 logo
+- `/public/_static/doc-icon.svg` - RWA Nexus 圖標 (SVG)
+- `/public/_static/doc-logo.svg` - RWA Nexus logo (SVG)
+- `/public/favicon.ico` - RWA Nexus favicon
+- `/components/sidebar/app-sidebar.tsx` - 側邊欄更新

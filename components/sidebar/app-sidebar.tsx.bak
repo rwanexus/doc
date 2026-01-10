@@ -98,6 +98,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           !router.pathname.includes("datarooms"),
       },
       {
+        title: "All Datarooms",
+        url: "/datarooms",
+        icon: ServerIcon,
+        current: router.pathname === "/datarooms",
+        disabled: !isBusiness && !isDatarooms && !isDataroomsPlus && !isTrial,
+        trigger: "sidebar_datarooms",
+        plan: PlanEnum.Business,
+        highlightItem: ["datarooms"],
+        isActive:
+          router.pathname.includes("datarooms") &&
+          (isBusiness || isDatarooms || isDataroomsPlus || isTrial),
+        items:
+          isBusiness || isDatarooms || isDataroomsPlus || isTrial
+            ? dataroomItems
+            : undefined,
+      },
+      {
+        title: "Visitors",
+        url: "/visitors",
+        icon: ContactIcon,
+        current: router.pathname.includes("visitors"),
+        disabled: isFree && !isTrial,
+        trigger: "sidebar_visitors",
+        plan: PlanEnum.Pro,
+        highlightItem: ["visitors"],
+      },
+      {
         title: "Workflows",
         url: "/workflows",
         icon: WorkflowIcon,
@@ -106,6 +133,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         trigger: "sidebar_workflows",
         plan: PlanEnum.DataRoomsPlus,
         highlightItem: ["workflows"],
+      },
+      {
+        title: "Branding",
+        url: "/branding",
+        icon: BrushIcon,
+        current:
+          router.pathname.includes("branding") &&
+          !router.pathname.includes("datarooms"),
       },
       {
         title: "Settings",
